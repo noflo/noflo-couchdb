@@ -3,7 +3,7 @@ noflo = require "noflo"
 class ReadDocument extends noflo.Component
   constructor: ->
     @connection = null
-    @data = []
+    @pendingRequests = []
 
     @inPorts =
       in: new noflo.ArrayPort()
