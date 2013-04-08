@@ -2,7 +2,6 @@ noflo = require "noflo"
 
 class ReadDocument extends noflo.Component
   constructor: ->
-    @request = null
     @connection = null
     @data = []
 
