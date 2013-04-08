@@ -1,5 +1,4 @@
 noflo = require "noflo"
-couch = require "couch-client"
 
 class ReadDocument extends noflo.Component
   constructor: ->
@@ -13,19 +12,21 @@ class ReadDocument extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.connection.on "data", (data) =>
-      @connection = data
-      return unless @data.length
-      @loadObject data for data in @data
+    @inPorts.connection.on "data", (connectionMessage) =>
+      console.log "got a connection object."
+      @connection = connectionMessage
+      return unless @pendingRequests.length > 0
+      @loadObject doc for doc in @pendingRequests
 
-    @inPorts.in.on "data", (data) =>
-      return @loadObject data if @connection
-      @data.push data
+    @inPorts.in.on "data", (doc) =>
+      console.log "got a read request."
+      return @loadObject doc if @connection
+      @pendingRequests.push doc
 
-  loadObject: (object) ->
-    @connection.get object, (err, document) =>
-      return console.error err if err
-      return unless @outPorts.out.isAttached()
-      @outPorts.out.send document
+  loadObject: (documentName) ->
+    @connection.get documentName, (err, document) =>
+      if err?
+      else
+        @outPorts.out.send document if @outPorts.out.isAttached()
 
 exports.getComponent = -> new ReadDocument
