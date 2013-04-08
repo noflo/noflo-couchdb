@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "noflo": "0.3.x",
-    "couch-client": "0.0.x"
+    "nano": "3.3.x"
   },
   "devDependencies": {
     "nodeunit": ">=0.6.0",
