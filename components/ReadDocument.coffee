@@ -1,6 +1,8 @@
-noflo = require "noflo"
 
-class ReadDocument extends noflo.Component
+noflo = require "noflo"
+{ LoggedComponent } = require "./LoggedComponent"
+
+class ReadDocument extends LoggedComponent
   constructor: ->
     @connection = null
     @pendingRequests = []
@@ -25,6 +27,11 @@ class ReadDocument extends noflo.Component
   loadObject: (documentName) ->
     @connection.get documentName, (err, document) =>
       if err?
+        @sendLog
+          type: "Error"
+          context: "Reading document of ID #{documentName} from CouchDB."
+          problem: "The document was not found."
+          solution: "Specify the correct document ID and check that another user did not delete the document."
       else
         @outPorts.out.send document if @outPorts.out.isAttached()
 
