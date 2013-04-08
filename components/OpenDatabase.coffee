@@ -2,8 +2,11 @@ noflo = require "noflo"
 nano = require "nano"
 url = require "url"
 
-class OpenDatabase extends noflo.Component
+{ LoggedComponent } = require "./LoggedComponent"
+
+class OpenDatabase extends LoggedComponent
   constructor: ->
+    super
     @inPorts =
       url: new noflo.Port()
     @outPorts =
@@ -43,6 +46,10 @@ class OpenDatabase extends noflo.Component
     # Create the database if it doesn't exist but ignore the error if it exists already.
     @couchDbServer.db.create @databaseName, (err, body) =>
       if err? and err.error isnt "file_exists"
+        @sendLog
+          context: "Creating database #{@databaseName} on the CouchDB server at '#{@serverUrl}'."
+          problem: err
+          solution: "Request permission to create this database from the CouchDB server administrator or have this database created for you."
       else
         connection = @couchDbServer.use @databaseName
         @outPorts.connection.send connection
