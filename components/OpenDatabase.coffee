@@ -1,5 +1,6 @@
 noflo = require "noflo"
-couch = require "couch-client"
+nano = require "nano"
+url = require "url"
 
 class OpenDatabase extends noflo.Component
   constructor: ->
@@ -9,13 +10,42 @@ class OpenDatabase extends noflo.Component
       connection: new noflo.ArrayPort()
 
     @inPorts.url.on "data", (data) =>
-      db = couch data
-      @createDatabase db, @outPorts.connection
+      try
+        @parseConnectionString(data)
+        @couchDbServer = nano(@serverUrl)
+        @createDbIfItDoesntExistThenSendConnection()
+      catch error
+        if error.context?
+          @sendLog error
+        else
+          @sendLog
+            type: "Error"
+            context: "Connecting to the CouchDB database at URL '#{data}'."
+            problem: error
+            solution: "Refer the document with this context information to the software developer."
 
-  createDatabase: (connection, outPort) ->
-    connection.request "PUT", "/#{connection.uri.pathname}", (err, result) ->
-      return console.error err if err
-      outPort.send connection
-      outPort.disconnect()
+  parseConnectionString: (connectionString) =>
+    databaseUrl = try
+      url.parse(connectionString)
+    catch error
+      throw {
+        type: "Error"
+        context: "Parsing the CouchDB database URL '#{data}' received on the configure port."
+        problem: error
+        solution: "Send a correctly formed URL to the configure port."
+      }
+
+    @databaseName = databaseUrl.pathname
+    @databaseName = @databaseName.substring(1, @databaseName.length)
+    @serverUrl = connectionString.substring(0, connectionString.length - @databaseName.length - 1)
+
+  createDbIfItDoesntExistThenSendConnection: =>
+    # Create the database if it doesn't exist but ignore the error if it exists already.
+    @couchDbServer.db.create @databaseName, (err, body) =>
+      if err? and err.error isnt "file_exists"
+      else
+        connection = @couchDbServer.use @databaseName
+        @outPorts.connection.send connection
+        @outPorts.connection.disconnect()
 
 exports.getComponent = -> new OpenDatabase
