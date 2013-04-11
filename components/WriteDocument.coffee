@@ -1,3 +1,4 @@
+
 noflo = require "noflo"
 { LoggedComponent } = require "./LoggedComponent"
 
@@ -8,10 +9,10 @@ class WriteDocument extends LoggedComponent
     @connection = null
     @pendingRequests = []
 
-    @inPorts.in = new noflo.ArrayPort()
-    @inPorts.connection = new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts =
+      in: new noflo.ArrayPort()
+      connection: new noflo.Port()
+    @outPorts.out = new noflo.Port()
 
     @inPorts.connection.on "data", (connectionMessage) =>
       @connection = connectionMessage
