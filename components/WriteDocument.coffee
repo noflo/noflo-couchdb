@@ -1,36 +1,44 @@
 noflo = require "noflo"
-couch = require "couch-client"
+{ LoggedComponent } = require "./LoggedComponent"
 
-class WriteDocument extends noflo.Component
+class WriteDocument extends LoggedComponent
   constructor: ->
+    super
     @request = null
     @connection = null
-    @data = []
+    @pendingRequests = []
 
-    @inPorts =
-      in: new noflo.ArrayPort()
-      connection: new noflo.Port()
+    @inPorts.in = new noflo.ArrayPort()
+    @inPorts.connection = new noflo.Port()
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.connection.on "data", (data) =>
-      @connection = data
-      return unless @data.length
-      @saveObject data for data in @data
+    @inPorts.connection.on "data", (connectionMessage) =>
+      @connection = connectionMessage
+      return unless @pendingRequests.length > 0
+      @saveObject doc for doc in @pendingRequests
 
-    @inPorts.in.on "data", (data) =>
-      return @saveObject data if @connection
-      @data.push data
+    @inPorts.in.on "data", (doc) =>
+      if @connection
+        @saveObject doc 
+      else
+        @pendingRequests.push doc
+        
     @inPorts.in.on "disconnect", =>
       return unless @outPorts.out.isAttached()
       for port in @inPorts.in
         return if port.isConnected()
       @outPorts.out.disconnect()
 
-  saveObject: (object) ->
-    @connection.save object, (err, document) =>
-      return console.error err if err
-      return unless @outPorts.out.isAttached()
-      @outPorts.out.send document
+  saveObject: (object) =>
+    @connection.insert object, (err, response) =>
+      if err?
+        @sendLog
+          type: "Error"
+          context: "Writing a document to CouchDB."
+          problem: response
+          solution: "Resolve all conflicts and check that you have permission to insert a document into this database."
+      else
+        @outPorts.out.send object if @outPorts.out.isAttached()
 
 exports.getComponent = -> new WriteDocument
