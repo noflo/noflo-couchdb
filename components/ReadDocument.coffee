@@ -20,9 +20,10 @@ class ReadDocument extends LoggedComponent
       @loadObject doc for doc in @pendingRequests
 
     @inPorts.in.on "data", (doc) =>
-      console.log "got a read request."
-      return @loadObject doc if @connection
-      @pendingRequests.push doc
+      if @connection
+        @loadObject doc 
+      else
+        @pendingRequests.push doc
 
   loadObject: (documentName) ->
     @connection.get documentName, (err, document) =>
