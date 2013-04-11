@@ -20,7 +20,7 @@ class WriteDocument extends LoggedComponent
 
     @inPorts.in.on "data", (doc) =>
       if @connection
-        @saveObject doc 
+        @saveObject doc
       else
         @pendingRequests.push doc
         
