@@ -5,7 +5,7 @@ This module provides CouchDB components for the [NoFlo](http://noflojs.org/) flo
 
 Read a document example flow
 ----------------------------
-Here is an example FBP flow configuration to read a document from a database.
+Here is an example FBP flow configuration to read a document from a database.  You can put this flow configuration into a file called 'readdoc.fbp' and then run it on the command line with `noflo readdoc.fbp`
 
     'https://username:password@server.cloudant.com/my-database-name' -> URL DbConn(couchdb/OpenDatabase)
     DbConn() CONNECTION -> CONNECTION DocReader(couchdb/ReadDocument)
