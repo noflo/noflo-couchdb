@@ -31,7 +31,7 @@ class ReadDocumentAttachment extends LoggedComponent
         problem: "The request must be a object that includes both a 'docID' and an 'attachmentName' field."
         solution: "Fix the format of the request to this component. e.g. { 'docID': 'abc123', 'attachmentName': 'rabbit.jpg' }"
 
-    @connection.attachment.get requestMessage.docID, requestMessage.attachmentName, (err, body) =>
+    @connection.attachment.get requestMessage.docID, requestMessage.attachmentName, (err, body, header) =>
       if err?
         @sendLog
           type: "Error"
@@ -40,6 +40,7 @@ class ReadDocumentAttachment extends LoggedComponent
           solution: "Specify the correct document ID and check that another user did not delete the document."
       else
         requestMessage.data = body
+        requestMessage.header = header
         @outPorts.out.send requestMessage if @outPorts.out.isAttached()
 
 
