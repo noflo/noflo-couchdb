@@ -21,7 +21,7 @@ class ReadDocument extends LoggedComponent
 
     @inPorts.in.on "data", (doc) =>
       if @connection
-        @loadObject doc 
+        @loadObject doc
       else
         @pendingRequests.push doc
 
