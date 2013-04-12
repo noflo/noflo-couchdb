@@ -27,3 +27,30 @@ Write a document example flow
 
 There are 4 components in this example.  Like the document reading example above, I create a CouchDB connection using an OpenDatabase component and direct connections that it opens to a WriteDocument component which I have called DocWriter in this flow.  The DocWriter likes to work with JavaScript objects but I can only write text strings in this flow document.  For the purposes of this demo, I parse the input string into a Javascript object before sending it to the document writer, which will send the parsed document on to CouchDB.  The component I called Txt2Obj in this flow uses the ParseJson component that is defined in the main [NoFlo](http://noflojs.org/) package.
 
+Read an attachment example flow
+-------------------------------
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DbConn(couchdb/
+    DbConn() CONNECTION -> CONNECTION AttReader(couchdb/ReadDocumentAttachment)
+    AttReader() OUT -> IN ConsoleLogger(Output)
+    AttReader() LOG -> IN ConsoleLogger(Output)
+    '{ "docID": "your_couchdb_document_id_here", "attachmentName": "rabbit.jpg" }' -> IN Txt2Obj(ParseJson)
+    Txt2Obj() OUT -> IN AttReader(couchdb/ReadDocumentAttachment)
+
+There are 4 components in this example.  Like the document writing example above, the component I named DbConn in this flow sends a connection to the AttReader component to tell it which database to look up attachments in.  The AttReader component accepts object requests that must include a docID and attachmentName so I parse the request with the Txt2Obj component before sending the request to the AttReader.  When the attachment has been read it will be send to the ConsoleLogger component.  You should see something like the following output:
+
+    { docID: 'blah',
+      attachmentName: 'rabbit.jpg',
+      data: <Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 01 c4 00 00 00 a2 08 02 00 00 00 50 e7 2a bb 00 00 02 11 69 43 43 50 49 43 43 20 50 72 6f 66 69 6c ...>
+      header:
+       { etag: '"4-f26e2da8d6d0552a8e11a42bdf1d891d"',
+         date: 'Fri, 12 Apr 2013 13:20:25 GMT',
+         'content-type': 'image/png',
+         'content-md5': '/2Ys/O5zAiFTMR6vUcariA==',
+         'cache-control': 'must-revalidate',
+         'accept-ranges': 'bytes',
+         'status-code': 200,
+         uri: 'https://username:pasword@server.cloudant.com/my-database-name/your_couchdb_document_id_here/rabbit.jpg' } }
+
+The AttReader component adds a 'data' key to the request before sending it on to its out port.  The 'data' value will always be a Buffer object containing the data of the attachment.  The ConsoleLogger, in this case, prints the first few bytes of the data in hex and indicates that there is more data not shown with '...'  The HTTP header from CouchDB is also included for information purposes, for example, to see the content-type of the data.
+
+When you create your own flows, perhaps you'll want to write the data out to a file.  You could use the [NoFlo MapProperty component](https://github.com/bergie/noflo/blob/master/src/components/MapProperty.coffee) to change 'attachmentName' to 'filename'; chaining several components together until you use the [NoFlo WriteFile component](https://github.com/bergie/noflo/blob/master/src/components/WriteFile.coffee) to write the data to disk.
