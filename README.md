@@ -66,4 +66,4 @@ Each component in this library includes a 'log' port that describe important eve
       when: Fri Apr 12 2013 14:20:12 GMT+0100 (BST),
       source: 'ReadDocumentAttachment' }
 
-The 'source' attribute tells you which component generated the message, in case you centralise the error logging.  This might help you determine how to recover from the error and which component to send the corrected request back to.
+The 'source' attribute tells you which component generated the message, in case you centralise the error logging.  This might help you determine how to recover from the error and which component to send the corrected request back to.  Why report errors with context, problem & solution?  [I'm glad you asked!](http://programmers.stackexchange.com/questions/29433/how-to-write-a-good-exception-message/29455#29455)
