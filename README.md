@@ -54,3 +54,16 @@ There are 4 components in this example.  Like the document writing example above
 The AttReader component adds a 'data' key to the request before sending it on to its out port.  The 'data' value will always be a Buffer object containing the data of the attachment.  The ConsoleLogger, in this case, prints the first few bytes of the data in hex and indicates that there is more data not shown with '...'  The HTTP header from CouchDB is also included for information purposes, for example, to see the content-type of the data.
 
 When you create your own flows, perhaps you'll want to write the data out to a file.  You could use the [NoFlo MapProperty component](https://github.com/bergie/noflo/blob/master/src/components/MapProperty.coffee) to change 'attachmentName' to 'filename'; chaining several components together until you use the [NoFlo WriteFile component](https://github.com/bergie/noflo/blob/master/src/components/WriteFile.coffee) to write the data to disk.
+
+Logging
+-------
+Each component in this library includes a 'log' port that describe important events in the components life.  Most importantly, when something goes wrong, the components will write messages with `{ 'type': 'Error' }` to the log port.  Each error message will try to describe the context of what the component was doing when the error occurred, a specific problem description as well as suggested solutions.  For example, if I were to misspell the attachment name from the flow immediately above, I would get the following message on the 'log' port.
+
+    { type: 'Error',
+      context: 'Reading attachment named \'rabbt.jpg\' from document of ID your_couchdb_document_id_here from CouchDB.',
+      problem: 'The document was not found.',
+      solution: 'Specify the correct document ID and check that another user did not delete the document.',
+      when: Fri Apr 12 2013 14:20:12 GMT+0100 (BST),
+      source: 'ReadDocumentAttachment' }
+
+The 'source' attribute tells you which component generated the message, in case you centralise the error logging.  This might help you determine how to recover from the error and which component to send the corrected request back to.
