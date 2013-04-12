@@ -1,7 +1,10 @@
-noflo = require "noflo"
 
-class ReadDocumentAttachment extends noflo.Component
+noflo = require "noflo"
+{ LoggedComponent } = require "./LoggedComponent"
+
+class ReadDocumentAttachment extends LoggedComponent
   constructor: ->
+    super
     @connection = null
     @document = null
     @attachment = null
@@ -12,6 +15,11 @@ class ReadDocumentAttachment extends noflo.Component
       attachment: new noflo.Port
     @outPorts =
       out: new noflo.Port
+      @sendLog
+        type: "Error"
+        context: "Received a request to read and attachment from CouchDB."
+        problem: "The request must be a object that includes both a 'docID' and an 'attachmentName' field."
+        solution: "Fix the format of the request to this component. e.g. { 'docID': 'abc123', 'attachmentName': 'rabbit.jpg' }"
 
     @inPorts.connection.on "data", (data) =>
       @connection = data
@@ -57,6 +65,11 @@ class ReadDocumentAttachment extends noflo.Component
   getAttachmentName: (document, attachment) ->
     return attachment if isNaN attachment - 0
     return @getAttachmentNameByIndex document, attachment
+        @sendLog
+          type: "Error"
+          context: "Reading attachment named '#{requestMessage.attachmentName}' from document of ID #{requestMessage.docID} from CouchDB."
+          problem: "The document was not found."
+          solution: "Specify the correct document ID and check that another user did not delete the document."
 
   readAttachment: ->
     attachment = @getAttachmentName @document, @attachment
