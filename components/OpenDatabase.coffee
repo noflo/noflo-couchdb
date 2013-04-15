@@ -20,7 +20,7 @@ class OpenDatabase extends noflo.LoggingComponent
           @sendLog error
         else
           @sendLog
-            type: "Error"
+            logLevel: "error"
             context: "Connecting to the CouchDB database at URL '#{data}'."
             problem: error
             solution: "Refer the document with this context information to the software developer."
@@ -30,7 +30,7 @@ class OpenDatabase extends noflo.LoggingComponent
       url.parse(connectionString)
     catch error
       throw {
-        type: "Error"
+        logLevel: "error"
         context: "Parsing the CouchDB database URL '#{data}' received on the configure port."
         problem: error
         solution: "Send a correctly formed URL to the configure port."
@@ -45,6 +45,7 @@ class OpenDatabase extends noflo.LoggingComponent
     @couchDbServer.db.create @databaseName, (err, body) =>
       if err? and err.error isnt "file_exists"
         @sendLog
+          logLevel: "error"
           context: "Creating database #{@databaseName} on the CouchDB server at '#{@serverUrl}'."
           problem: err
           solution: "Request permission to create this database from the CouchDB server administrator or have this database created for you."

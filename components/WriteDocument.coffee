@@ -34,7 +34,7 @@ class WriteDocument extends noflo.LoggingComponent
     @connection.insert object, (err, response) =>
       if err?
         @sendLog
-          type: "Error"
+          logLevel: "error"
           context: "Writing a document to CouchDB."
           problem: response
           solution: "Resolve all conflicts and check that you have permission to insert a document into this database."

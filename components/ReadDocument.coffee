@@ -10,13 +10,10 @@ class ReadDocument extends noflo.LoggingComponent
     @inPorts =
       in: new noflo.ArrayPort()
       connection: new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @outPorts.out = new noflo.Port()
 
     @inPorts.connection.on "data", (connectionMessage) =>
-      console.log "got a connection object."
       @connection = connectionMessage
-      return unless @pendingRequests.length > 0
       @loadObject doc for doc in @pendingRequests
 
     @inPorts.in.on "data", (doc) =>
@@ -29,7 +26,7 @@ class ReadDocument extends noflo.LoggingComponent
     @connection.get documentName, (err, document) =>
       if err?
         @sendLog
-          type: "Error"
+          logLevel: "error"
           context: "Reading document of ID #{documentName} from CouchDB."
           problem: "The document was not found."
           solution: "Specify the correct document ID and check that another user did not delete the document."

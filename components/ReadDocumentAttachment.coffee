@@ -25,7 +25,7 @@ class ReadDocumentAttachment extends noflo.LoggingComponent
   readAttachment: (requestMessage) =>
     unless requestMessage.docID? and requestMessage.attachmentName?
       @sendLog
-        type: "Error"
+        logLevel: "error"
         context: "Received a request to read and attachment from CouchDB."
         problem: "The request must be a object that includes both a 'docID' and an 'attachmentName' field."
         solution: "Fix the format of the request to this component. e.g. { 'docID': 'abc123', 'attachmentName': 'rabbit.jpg' }"
@@ -33,7 +33,7 @@ class ReadDocumentAttachment extends noflo.LoggingComponent
     @connection.attachment.get requestMessage.docID, requestMessage.attachmentName, (err, body, header) =>
       if err?
         @sendLog
-          type: "Error"
+          logLevel: "error"
           context: "Reading attachment named '#{requestMessage.attachmentName}' from document of ID #{requestMessage.docID} from CouchDB."
           problem: "The document was not found."
           solution: "Specify the correct document ID and check that another user did not delete the document."
