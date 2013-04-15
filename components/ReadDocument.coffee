@@ -3,6 +3,7 @@ noflo = require "noflo"
 
 class ReadDocument extends noflo.LoggingComponent
   constructor: ->
+    super
     @connection = null
     @pendingRequests = []
 
