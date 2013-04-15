@@ -1,8 +1,7 @@
 
 noflo = require "noflo"
-{ LoggedComponent } = require "./LoggedComponent"
 
-class WriteDocument extends LoggedComponent
+class WriteDocument extends noflo.LoggingComponent
   constructor: ->
     super
     @request = null

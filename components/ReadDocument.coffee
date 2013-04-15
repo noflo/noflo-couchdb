@@ -1,8 +1,7 @@
 
 noflo = require "noflo"
-{ LoggedComponent } = require "./LoggedComponent"
 
-class ReadDocument extends LoggedComponent
+class ReadDocument extends noflo.LoggingComponent
   constructor: ->
     @connection = null
     @pendingRequests = []

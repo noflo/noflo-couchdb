@@ -2,9 +2,7 @@ noflo = require "noflo"
 nano = require "nano"
 url = require "url"
 
-{ LoggedComponent } = require "./LoggedComponent"
-
-class OpenDatabase extends LoggedComponent
+class OpenDatabase extends noflo.LoggingComponent
   constructor: ->
     super
     @inPorts =
