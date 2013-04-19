@@ -22,7 +22,7 @@ class WriteDocument extends CouchDbComponentBase
           solution: "Refer the document with this context information to the software developer."
 
     @inPorts.in.on "data", (doc) =>
-      if @connection
+      if @dbConnection
         @saveObject doc
       else
         @pendingRequests.push doc
