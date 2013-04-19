@@ -15,7 +15,7 @@ class ReadDocument extends CouchDbComponentBase
     super
     @pendingRequests = []
 
-    @inPorts.in = new noflo.ArrayPort()
+    @inPorts.in = new noflo.Port()
     @outPorts.out = new noflo.Port()
 
     # Add an event listener to the URL in-port that we inherit from CouchDbComponentBase
@@ -34,6 +34,10 @@ class ReadDocument extends CouchDbComponentBase
         @loadObject docID
       else
         @pendingRequests.push docID
+
+    @inPorts.in.on "disconnect", =>
+      @outPorts.out.disconnect()
+      @outPorts.log.disconnect()
 
   loadObject: (docID) ->
     @dbConnection.get docID, (err, document) =>
