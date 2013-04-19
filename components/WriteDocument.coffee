@@ -28,10 +28,8 @@ class WriteDocument extends CouchDbComponentBase
         @pendingRequests.push doc
         
     @inPorts.in.on "disconnect", =>
-      return unless @outPorts.out.isAttached()
-      for port in @inPorts.in
-        return if port.isConnected()
       @outPorts.out.disconnect()
+      @outPorts.log.disconnect()
 
   saveObject: (object) =>
     @dbConnection.insert object, (err, response) =>
