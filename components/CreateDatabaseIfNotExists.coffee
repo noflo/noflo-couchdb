@@ -2,6 +2,13 @@
 noflo = require "noflo"
 { CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
+# Ports:
+#   In:   URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
+#             When a URL is received, the parent constructor will create an @dbConnection for us.
+#
+#   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
+#         URL Created in this class to send the database URL on to other components that expect the database to exist already.
+
 class CreateDatabaseIfNotExists extends CouchDbComponentBase
   constructor: ->
     super
