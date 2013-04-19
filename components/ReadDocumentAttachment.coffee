@@ -2,6 +2,14 @@
 noflo = require "noflo"
 { CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
+# Ports:
+#   In:   URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
+#             When a URL is received, the parent constructor will create an @dbConnection for us.
+#         IN  Created in this class to receive document IDs and attachment names to look up in CouchDB
+#
+#   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
+#         OUT Created in this class to send document attachments that were read from CouchDB.
+
 class ReadDocumentAttachment extends CouchDbComponentBase
   constructor: ->
     super
