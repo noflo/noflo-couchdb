@@ -1,23 +1,27 @@
 
 noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
-class ReadDocumentAttachment extends noflo.LoggingComponent
+class ReadDocumentAttachment extends CouchDbComponentBase
   constructor: ->
     super
-    @connection = null
     @pendingRequests = []
 
-    @inPorts =
-      connection: new noflo.Port
-      in: new noflo.Port
+    @inPorts.in = new noflo.Port
     @outPorts.out = new noflo.Port
 
-    @inPorts.connection.on "data", (connectionMessage) =>
-      @connection = connectionMessage
-      @readAttachment request for request in @pendingRequests
+    @inPorts.url.on "data", (data) =>
+      if @dbConnection?
+        @readAttachment request for request in @pendingRequests
+      else
+        @sendLog
+          logLevel: "error"
+          context: "Connecting to the CouchDB database at URL '#{data}'."
+          problem: "Parent class CouchDbComponentBase didn't set up a connection."
+          solution: "Refer the document with this context information to the software developer."
 
     @inPorts.in.on "data", (requestMessage) =>
-      if @connection
+      if @dbConnection?
         @readAttachment requestMessage
       else
         @pendingRequests.push requestMessage
@@ -30,7 +34,7 @@ class ReadDocumentAttachment extends noflo.LoggingComponent
         problem: "The request must be a object that includes both a 'docID' and an 'attachmentName' field."
         solution: "Fix the format of the request to this component. e.g. { 'docID': 'abc123', 'attachmentName': 'rabbit.jpg' }"
 
-    @connection.attachment.get requestMessage.docID, requestMessage.attachmentName, (err, body, header) =>
+    @dbConnection.attachment.get requestMessage.docID, requestMessage.attachmentName, (err, body, header) =>
       if err?
         @sendLog
           logLevel: "error"
