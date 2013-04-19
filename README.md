@@ -28,14 +28,13 @@ There are 3 components in this example.  Like the document reading example above
 
 Read an attachment example flow
 -------------------------------
-    'https://username:password@server.cloudant.com/my-database-name' -> URL DbConn(couchdb/
-    DbConn() CONNECTION -> CONNECTION AttReader(couchdb/ReadDocumentAttachment)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL AttReader(couchdb/ReadDocumentAttachment)
     AttReader() OUT -> IN ConsoleLogger(Output)
     AttReader() LOG -> IN ConsoleLogger(Output)
     '{ "docID": "your_couchdb_document_id_here", "attachmentName": "rabbit.jpg" }' -> IN Txt2Obj(ParseJson)
     Txt2Obj() OUT -> IN AttReader(couchdb/ReadDocumentAttachment)
 
-There are 4 components in this example.  Like the document writing example above, the component I named DbConn in this flow sends a connection to the AttReader component to tell it which database to look up attachments in.  The AttReader component accepts object requests that must include a docID and attachmentName so I parse the request with the Txt2Obj component before sending the request to the AttReader.  When the attachment has been read it will be send to the ConsoleLogger component.  You should see something like the following output:
+There are 3 components in this example.  Like the document writing example above, I send the URL of the database to the AttReader component to tell it which database to look up attachments in.  The AttReader component accepts object requests that must include a docID and attachmentName so I parse the request with the Txt2Obj component before sending the request to the AttReader.  When the attachment has been read it will be send to the ConsoleLogger component.  You should see something like the following output:
 
     { docID: 'blah',
       attachmentName: 'rabbit.jpg',
