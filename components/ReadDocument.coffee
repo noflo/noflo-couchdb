@@ -5,7 +5,8 @@ noflo = require "noflo"
 # Ports:
 #   In:   URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
 #             When a URL is received, the parent constructor will create an @dbConnection for us.
-#         IN  Created in this class to receive document IDs to look up in CouchDB
+#         IN  Created in this class to receive document IDs to look up in CouchDB.  The data contents on this
+#             port should be simple strings.
 #
 #   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
 #         OUT Created in this class to send whole documents that were read from CouchDB.
