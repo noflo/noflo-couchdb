@@ -18,14 +18,13 @@ To begin with, I send a message on the DocReader component's URL port telling it
 
 Write a document example flow
 -----------------------------
-    'https://username:password@server.cloudant.com/my-database-name' -> URL DbConn(couchdb/OpenDatabase)
-    DbConn() CONNECTION -> CONNECTION DocWriter(couchdb/WriteDocument)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL  DocWriter(couchdb/WriteDocument)
     DocWriter() OUT -> IN ConsoleLogger(Output)
     DocWriter() LOG -> IN ConsoleLogger(Output)
     Txt2Obj() OUT -> IN DocWriter(couchdb/WriteDocument)
     '{ "source": "from NoFlo", "how_awesome": "Really rather good." }' -> IN Txt2Obj(ParseJson)
 
-There are 4 components in this example.  Like the document reading example above, I create a CouchDB connection using an OpenDatabase component and direct connections that it opens to a WriteDocument component which I have called DocWriter in this flow.  The DocWriter likes to work with JavaScript objects but I can only write text strings in this flow document.  For the purposes of this demo, I parse the input string into a Javascript object before sending it to the document writer, which will send the parsed document on to CouchDB.  The component I called Txt2Obj in this flow uses the ParseJson component that is defined in the main [NoFlo](http://noflojs.org/) package.
+There are 3 components in this example.  Like the document reading example above, I send the URL of the database to a WriteDocument component which I have called DocWriter in this flow.  The DocWriter likes to work with JavaScript objects but I can only write text strings in this flow document.  For the purposes of this demo, I parse the input string into a Javascript object before sending it to the document writer, which will send the document object on to CouchDB.  The component I called Txt2Obj in this flow uses the ParseJson component that is defined in the main [NoFlo](http://noflojs.org/) package.
 
 Read an attachment example flow
 -------------------------------
