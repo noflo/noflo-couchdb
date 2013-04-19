@@ -81,7 +81,7 @@ Logging
 -------
 Each component in this library includes a 'log' port that describe important events in the components life.  Most importantly, when something goes wrong, the components will write messages with `{ 'logLevel': 'error' }` to the log port.  Each error message will try to describe the context of what the component was doing when the error occurred, a specific problem description as well as suggested solutions.  For example, if I were to misspell the attachment name from the flow immediately above, I would get the following message on the 'log' port.
 
-    { type: 'Error',
+    { logLevel: 'error',
       context: 'Reading attachment named \'rabbt.jpg\' from document of ID your_couchdb_document_id_here from CouchDB.',
       problem: 'The document was not found.',
       solution: 'Specify the correct document ID and check that another user did not delete the document.',
