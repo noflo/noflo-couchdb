@@ -22,7 +22,7 @@
   "noflo": {
     "components": {
       "GetChanges": "./components/GetChanges.coffee",
-      "OpenDatabase": "./components/OpenDatabase.coffee",
+      "CreateDatabaseIfNotExists": "./components/CreateDatabaseIfNotExists.coffee",
       "ReadDocument": "./components/ReadDocument.coffee",
       "ReadDocumentAttachment": "./components/ReadDocumentAttachment.coffee",
       "WriteDocument": "./components/WriteDocument.coffee"

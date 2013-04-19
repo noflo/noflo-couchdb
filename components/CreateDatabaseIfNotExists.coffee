@@ -1,46 +1,24 @@
-noflo = require "noflo"
-nano = require "nano"
-url = require "url"
 
-class OpenDatabase extends noflo.LoggingComponent
+noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
+
+class CreateDatabaseIfNotExists extends CouchDbComponentBase
   constructor: ->
     super
-    @inPorts =
-      url: new noflo.Port()
-    @outPorts =
-      connection: new noflo.ArrayPort()
+    @outPorts.url = new noflo.ArrayPort()
 
+    # Add an event listener to the URL in-port that we inherit from CouchDbComponentBase
     @inPorts.url.on "data", (data) =>
-      try
-        @parseConnectionString(data)
-        @couchDbServer = nano(@serverUrl)
-        @createDbIfItDoesntExistThenSendConnection()
-      catch error
-        if error.context?
-          @sendLog error
-        else
-          @sendLog
-            logLevel: "error"
-            context: "Connecting to the CouchDB database at URL '#{data}'."
-            problem: error
-            solution: "Refer the document with this context information to the software developer."
+      if @dbConnection?
+        @createDbIfItDoesntExistThenSendUrl data
+      else
+        @sendLog
+          logLevel: "error"
+          context: "Connecting to the CouchDB database at URL '#{data}'."
+          problem: "Parent class CouchDbComponentBase didn't set up a connection."
+          solution: "Refer the document with this context information to the software developer."
 
-  parseConnectionString: (connectionString) =>
-    databaseUrl = try
-      url.parse(connectionString)
-    catch error
-      throw {
-        logLevel: "error"
-        context: "Parsing the CouchDB database URL '#{data}' received on the configure port."
-        problem: error
-        solution: "Send a correctly formed URL to the configure port."
-      }
-
-    @databaseName = databaseUrl.pathname
-    @databaseName = @databaseName.substring(1, @databaseName.length)
-    @serverUrl = connectionString.substring(0, connectionString.length - @databaseName.length - 1)
-
-  createDbIfItDoesntExistThenSendConnection: =>
+  createDbIfItDoesntExistThenSendUrl: (urlString) =>
     # Create the database if it doesn't exist but ignore the error if it exists already.
     @couchDbServer.db.create @databaseName, (err, body) =>
       if err? and err.error isnt "file_exists"
@@ -51,7 +29,7 @@ class OpenDatabase extends noflo.LoggingComponent
           solution: "Request permission to create this database from the CouchDB server administrator or have this database created for you."
       else
         connection = @couchDbServer.use @databaseName
-        @outPorts.connection.send connection
-        @outPorts.connection.disconnect()
+        @outPorts.url.send urlString
+        @outPorts.url.disconnect()
 
-exports.getComponent = -> new OpenDatabase
+exports.getComponent = -> new CreateDatabaseIfNotExists
