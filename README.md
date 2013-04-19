@@ -53,6 +53,18 @@ The AttReader component adds a 'data' key to the request before sending it on to
 
 When you create your own flows, perhaps you'll want to write the data out to a file.  You could use the [NoFlo MapProperty component](https://github.com/bergie/noflo/blob/master/src/components/MapProperty.coffee) to change 'attachmentName' to 'filename'; chaining several components together until you use the [NoFlo WriteFile component](https://github.com/bergie/noflo/blob/master/src/components/WriteFile.coffee) to write the data to disk.
 
+Read from a view
+----------------
+    'https://username:password@server.cloudant.com/my-database-name' -> URL ViewReader(couchdb/ReadViewDocuments)
+    ViewReader() OUT -> IN ConsoleLogger(Output)
+    ViewReader() LOG -> IN ConsoleLogger(Output)
+    # '{ "designDocID": "noflo_tests", "viewName": "testDocs" }' -> IN Txt2Obj(ParseJson)
+    # '{ "designDocID": "noflo_tests", "viewName": "testDocs", "params": { "startkey": 2, "endkey": 4 } }' -> IN Txt2Obj(ParseJson)
+    '{ "designDocID": "noflo_tests", "viewName": "testDocs", "params": { "keys": [2, 3] } }' -> IN Txt2Obj(ParseJson)
+    Txt2Obj(ParseJson) OUT -> IN ViewReader(couchdb/ReadViewDocuments)
+
+The view reader component accepts request objects that must include at least a designDocID and a viewName.  You can optionally specify view parameters in a "params" object.  In the view parameters you can include any view criteria that are acceptable to CouchDB.  In the commented lines in the example above, I show how you can request specific keys or a start and end key.
+
 Making sure a database exists first
 -----------------------------------
 In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNotExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
