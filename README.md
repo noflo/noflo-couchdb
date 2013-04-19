@@ -55,6 +55,18 @@ The AttReader component adds a 'data' key to the request before sending it on to
 
 When you create your own flows, perhaps you'll want to write the data out to a file.  You could use the [NoFlo MapProperty component](https://github.com/bergie/noflo/blob/master/src/components/MapProperty.coffee) to change 'attachmentName' to 'filename'; chaining several components together until you use the [NoFlo WriteFile component](https://github.com/bergie/noflo/blob/master/src/components/WriteFile.coffee) to write the data to disk.
 
+Making sure a database exists first
+-----------------------------------
+In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNotExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
+
+    'https://username:password@server.cloudant.com/my-database-name' -> DbCreate(couchdb/CreateDatabaseIfNotExists)
+	DbCreate() URL -> URL DocReader(couchdb/ReadDocument)
+    DocReader() OUT -> IN ConsoleLogger(Output)
+    DocReader() LOG -> IN ConsoleLogger(Output)
+    'your_couchdb_document_id_here' -> IN DocReader(couchdb/ReadDocument)
+
+This flow is almost the same as the document reading example above, but it makes sure that the CouchDB database exists before passing the URL on to the document reading component.
+
 Logging
 -------
 Each component in this library includes a 'log' port that describe important events in the components life.  Most importantly, when something goes wrong, the components will write messages with `{ 'type': 'Error' }` to the log port.  Each error message will try to describe the context of what the component was doing when the error occurred, a specific problem description as well as suggested solutions.  For example, if I were to misspell the attachment name from the flow immediately above, I would get the following message on the 'log' port.
