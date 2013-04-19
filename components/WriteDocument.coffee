@@ -1,22 +1,25 @@
 
 noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
-class WriteDocument extends noflo.LoggingComponent
+class WriteDocument extends CouchDbComponentBase
   constructor: ->
     super
     @request = null
-    @connection = null
     @pendingRequests = []
 
-    @inPorts =
-      in: new noflo.ArrayPort()
-      connection: new noflo.Port()
+    @inPorts.in = new noflo.Port()
     @outPorts.out = new noflo.Port()
 
-    @inPorts.connection.on "data", (connectionMessage) =>
-      @connection = connectionMessage
-      return unless @pendingRequests.length > 0
-      @saveObject doc for doc in @pendingRequests
+    @inPorts.url.on "data", (data) =>
+      if @dbConnection?
+        @saveObject doc for doc in @pendingRequests
+      else
+        @sendLog
+          logLevel: "error"
+          context: "Connecting to the CouchDB database at URL '#{data}'."
+          problem: "Parent class CouchDbComponentBase didn't set up a connection."
+          solution: "Refer the document with this context information to the software developer."
 
     @inPorts.in.on "data", (doc) =>
       if @connection
@@ -31,7 +34,7 @@ class WriteDocument extends noflo.LoggingComponent
       @outPorts.out.disconnect()
 
   saveObject: (object) =>
-    @connection.insert object, (err, response) =>
+    @dbConnection.insert object, (err, response) =>
       if err?
         @sendLog
           logLevel: "error"
