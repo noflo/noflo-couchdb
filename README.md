@@ -65,6 +65,16 @@ Read from a view
 
 The view reader component accepts request objects that must include at least a designDocID and a viewName.  You can optionally specify view parameters in a "params" object.  In the view parameters you can include any view criteria that are acceptable to CouchDB.  In the commented lines in the example above, I show how you can request specific keys or a start and end key.
 
+Watching for Changes in the Database
+------------------------------------
+	'https://username:password@server.cloudant.com/my-database-name' -> URL ChangeReader(couchdb/GetChanges)
+	ChangeReader() OUT -> IN ConsoleLogger(Output)
+	ChangeReader() LOG -> IN ConsoleLogger(Output)
+	'{ "since": "now" }' -> IN Txt2Obj(ParseJson)
+	Txt2Obj(ParseJson) OUT -> FOLLOW ChangeReader(couchdb/GetChanges)
+
+The GetChanges component watches for changes in the database and sends the change information to the OUT port.  In addition to sending this component the database URL, you must send it a configuration document on the FOLLOW port.  The values you can specify on the FOLLOW port are described [here](https://github.com/iriscouch/follow#simple-api-followoptions-callback).  These options include being able to specify the change sequence number to see changes from or the symbolic "now" which I have used in the example above.  You can also specify a filter function in a design document or include the JavaScript code for it in your follow options.
+
 Making sure a database exists first
 -----------------------------------
 In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNotExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
