@@ -2,6 +2,19 @@
 noflo = require "noflo"
 { CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
+# Ports:
+#   In:   URL     Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
+#                 When a URL is received, the parent constructor will create an @dbConnection for us.
+#         FOLLOW  Created in this class to receive requests to get changes from CouchDB.  The data contents on this
+#                 port must be objects with a query and optional parameters.  The contents of this object are described
+#                 at https://github.com/iriscouch/follow#simple-api-followoptions-callback although only the following
+#                 keys are likely to be useful: 'since', 'filter', 'query_params' and 'headers'
+#         COMMAND Created in this class to ask it to STOP, PAUSE or RESUME the change feed.  The data contents on this
+#                 port must be a string with one of those words in it.
+#
+#   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
+#         OUT Created in this class to send change documents that were read from CouchDB.
+
 class GetChanges extends CouchDbComponentBase
   constructor: ->
     super
