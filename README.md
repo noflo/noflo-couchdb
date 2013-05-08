@@ -75,6 +75,8 @@ Watching for Changes in the Database
 
 The GetChanges component watches for changes in the database and sends the change information to the OUT port.  In addition to sending this component the database URL, you must send it a configuration document on the FOLLOW port.  The values you can specify on the FOLLOW port are described [here](https://github.com/iriscouch/follow#simple-api-followoptions-callback).  These options include being able to specify the change sequence number to see changes from or the symbolic "now" which I have used in the example above.  You can also specify a filter function in a design document or include the JavaScript code for it in your follow options.
 
+The GetChanges component also has a COMMAND port to which you can send messages if you use this component interactively.  It accepts plain strings saying PAUSE, RESUME or STOP.
+
 Making sure a database exists first
 -----------------------------------
 In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNotExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
