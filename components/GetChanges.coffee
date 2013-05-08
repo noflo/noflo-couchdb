@@ -1,6 +1,6 @@
-noflo = require "noflo"
 
-class GetChanges extends noflo.Component
+noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
   constructor: ->
     @connection = null
     @options = null
