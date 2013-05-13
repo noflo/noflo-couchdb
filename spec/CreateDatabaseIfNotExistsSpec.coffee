@@ -6,7 +6,7 @@ if typeof process is "object" and process.title is "node"
   util = require "util"
 
 describe "CreateDatabaseIfNotExists", ->
-  @timeout 5000  # Dear mocha, don't timeout tests that take less than 5 seconds.
+  @timeout 5000  # Dear mocha, don't timeout tests that take less than 5 seconds. Kthxbai
   newDbUrl = "https://adminUser:adminPass@accountName.cloudant.com/noflo-test"
   mockCouchDb = null
   component = null
@@ -39,6 +39,7 @@ describe "CreateDatabaseIfNotExists", ->
       logOutMessages.length = 0
       urlOutMessages.length = 0
 
+      # Prepare the couchDB mock to respond with a "201: OK" response.
       mockCouchDb = nock("https://accountName.cloudant.com:443")
         .put("/noflo-test")
         .reply(201, "{\"ok\":true}\n", { "x-couch-request-id": "8d15ce7c",
@@ -66,11 +67,12 @@ describe "CreateDatabaseIfNotExists", ->
       logOutMessages.length = 0
       urlOutMessages.length = 0
 
+      # Prepare the couchDB mock to respond with a "412: File already exists" response.
       mockCouchDb = nock("https://accountName.cloudant.com:443")
         .put("/noflo-test")
         .reply(412, "{\"error\":\"file_exists\",\"reason\":\"The database could not be created, the file already exists.\"}\n", { "x-couch-request-id": "c9e3adab",
         server: "CouchDB/1.0.2 (Erlang OTP/R14B)",
-        date: "Sat, 11 May 2013 10:38:15 GMT",
+        date: new Date(),
         "content-type": "application/json",
         "content-length": "95",
         "cache-control": "must-revalidate" })
@@ -92,14 +94,15 @@ describe "CreateDatabaseIfNotExists", ->
       logOutMessages.length = 0
       urlOutMessages.length = 0
 
+      # Prepare the couchDB mock to respond with a "401: Unauthorised error" response.
       mockCouchDb = nock("https://accountName.cloudant.com:443")
         .put("/noflo-test")
-        .reply(401, "{\"error\":\"unauthorized\",\"reason\":\"Name or password is incorrect\"}\n", { "x-couch-request-id": "c9e3adab",
+        .reply(401, "{\"error\":\"unauthorized\",\"reason\":\"Name or password is incorrect\"}\n", { "x-couch-request-id": "3185aaa2",
         "www-authenticate": "Basic realm=\"Cloudant Private Database\"",
         server: "CouchDB/1.0.2 (Erlang OTP/R14B)",
-        date: "Sat, 11 May 2013 10:38:15 GMT",
+        date: new Date(),
         "content-type": "application/json",
-        "content-length": "95",
+        "content-length": "66",
         "cache-control": "must-revalidate" })
 
       urlInSocket.send newDbUrl
