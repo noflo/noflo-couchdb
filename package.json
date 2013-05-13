@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "pretest": "./node_modules/.bin/coffeelint -r components",
     "test": "./node_modules/.bin/nodeunit test"
+    "pretest": "./node_modules/.bin/coffeelint  -f coffeelint_config.json -r components",
   }
 }
