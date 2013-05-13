@@ -33,7 +33,7 @@ class GetChanges extends CouchDbComponentBase
 
     @inPorts.command.on "data", (message) =>
       switch message.toUpperCase()
-        when "STOP" then @feed.stop()
+        when "STOP" then @stopAndDisconnect()
         when "PAUSE" then @feed.pause()
         when "RESUME" then @feed.resume()
         else @sendLog
@@ -49,5 +49,10 @@ class GetChanges extends CouchDbComponentBase
       @outPorts.out.send changeMessage
 
     @feed.follow()
+
+  stopAndDisconnect: =>
+    @feed.stop()
+    @outPorts.out.disconnect()
+    @outPorts.log.disconnect()
 
 exports.getComponent = -> new GetChanges
