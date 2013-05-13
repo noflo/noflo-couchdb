@@ -25,6 +25,7 @@
   "noflo": {
     "components": {
       "GetChanges": "./components/GetChanges.coffee",
+      "BulkUpdate": "./components/BulkUpdate.coffee",
       "CreateDatabaseIfNotExists": "./components/CreateDatabaseIfNotExists.coffee",
       "ReadDocument": "./components/ReadDocument.coffee",
       "ReadViewDocuments": "./components/ReadViewDocuments.coffee",
