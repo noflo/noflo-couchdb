@@ -45,7 +45,7 @@ class WriteDocument extends CouchDbComponentBase
         @sendLog
           logLevel: "error"
           context: "Writing a document to CouchDB."
-          problem: response
+          problem: err
           solution: "Resolve all conflicts and check that you have permission to insert a document into this database."
       else
         @outPorts.out.send object if @outPorts.out.isAttached()
