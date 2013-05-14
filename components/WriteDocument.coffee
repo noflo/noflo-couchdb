@@ -48,6 +48,8 @@ class WriteDocument extends CouchDbComponentBase
           problem: err
           solution: "Resolve all conflicts and check that you have permission to insert a document into this database."
       else
+        object.id = response.id unless object.id
+        object.rev = response.rev
         @outPorts.out.send object if @outPorts.out.isAttached()
 
 exports.getComponent = -> new WriteDocument
