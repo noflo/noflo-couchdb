@@ -60,7 +60,7 @@ describe "WriteDocument", ->
     it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
-    it "should send the URL to the out port when done", ->
+    it "should send the document to the out port when done", ->
       chai.expect(outMessages).to.have.length(1)
       chai.expect(outMessages[0]).to.deep.equal
         id: "16aa3b990c03ce590f4a2ce296eff8d6",
