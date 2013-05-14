@@ -46,8 +46,8 @@ class ReadDocument extends CouchDbComponentBase
         @sendLog
           logLevel: "error"
           context: "Reading document of ID #{docID} from CouchDB."
-          problem: "The document was not found."
-          solution: "Specify the correct document ID and check that another user did not delete the document."
+          problem: err
+          solution: "Specify the correct document ID and check that another user/process did not delete the document."
       else
         @outPorts.out.send document if @outPorts.out.isAttached()
 
