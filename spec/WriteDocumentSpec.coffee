@@ -47,7 +47,7 @@ describe "WriteDocument", ->
         .post("/noflo-test", {"type":"test message","seqNum":1})
         .reply(201, "{\"ok\":true,\"id\":\"16aa3b990c03ce590f4a2ce296eff8d6\",\"rev\":\"1-c7e9d5e777a88118ded086f9d55aa330\"}\n", { "x-couch-request-id": "e2732a15",
         server: "CouchDB/1.0.2 (Erlang OTP/R14B)",
-        location: "http://robingl.cloudant.com/noflo-test/16aa3b990c03ce590f4a2ce296eff8d6",
+        location: "http://accountName.cloudant.com/noflo-test/16aa3b990c03ce590f4a2ce296eff8d6",
         date: new Date(),
         "content-type": "application/json",
         "content-length": "95",
