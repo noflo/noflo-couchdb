@@ -93,10 +93,10 @@ describe "ReadDocument", ->
     it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
-    it "should send the URL to the out port when done", ->
+    it "should not send any message to the out port", ->
       chai.expect(outMessages).to.have.length(0)
 
-    it "should not send a log message", ->
+    it "should log an error message", ->
       chai.expect(logOutMessages).to.have.length(1)
       chai.expect(logOutMessages[0]).to.have.property "logLevel", "error"
       for name in [ "context","problem","solution" ]
