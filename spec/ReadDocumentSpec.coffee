@@ -57,7 +57,7 @@ describe "ReadDocument", ->
       inSocket.send "a8561c6524f5b33082de2c78e4756f03"
       setTimeout done, 1000  # wait 1 second to be sure all messages have been processed, including any on the log out port.
 
-    it "should have called CouchDB to create the database", ->
+    it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
     it "should send the URL to the out port when done", ->
@@ -90,7 +90,7 @@ describe "ReadDocument", ->
       inSocket.send "a8561c6524f5b33082de2c78e4756f"
       setTimeout done, 1000  # wait 1 second to be sure all messages have been processed, including any on the log out port.
 
-    it "should have called CouchDB to create the database", ->
+    it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
     it "should send the URL to the out port when done", ->
