@@ -40,6 +40,13 @@ class BulkUpdate extends CouchDbComponentBase
       @outPorts.log.disconnect()
 
   sendBulkUpdate: (updatesDoc) =>
+    unless updatesDoc.docs and updatesDoc.docs instanceof Array
+      return @sendLog
+        logLevel: "error"
+        context: "Received a request to make bulk updates in CouchDB."
+        problem: "The request must be a object that includes a 'docs' element that is an array of document changes."
+        solution: "Fix the format of the request to this component as per http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API."
+
     @dbConnection.bulk updatesDoc, (err, response) =>
       if err?
         @sendLog
