@@ -31,12 +31,12 @@ Read an attachment example flow
     'https://username:password@server.cloudant.com/my-database-name' -> URL AttReader(couchdb/ReadDocumentAttachment)
     AttReader() OUT -> IN ConsoleLogger(Output)
     AttReader() LOG -> IN ConsoleLogger(Output)
-    '{ "docID": "your_couchdb_document_id_here", "attachmentName": "rabbit.jpg" }' -> IN Txt2Obj(ParseJson)
+    '{ "id": "your_couchdb_document_id_here", "attachmentName": "rabbit.jpg" }' -> IN Txt2Obj(ParseJson)
     Txt2Obj() OUT -> IN AttReader(couchdb/ReadDocumentAttachment)
 
 There are 3 components in this example.  Like the document writing example above, I send the URL of the database to the AttReader component to tell it which database to look up attachments in.  The AttReader component accepts object requests that must include a docID and attachmentName so I parse the request with the Txt2Obj component before sending the request to the AttReader.  When the attachment has been read it will be send to the ConsoleLogger component.  You should see something like the following output:
 
-    { docID: 'blah',
+    { id: 'blah',
       attachmentName: 'rabbit.jpg',
       data: <Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 01 c4 00 00 00 a2 08 02 00 00 00 50 e7 2a bb 00 00 02 11 69 43 43 50 49 43 43 20 50 72 6f 66 69 6c ...>
       header:
