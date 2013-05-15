@@ -46,8 +46,8 @@ class ReadDocumentAttachment extends CouchDbComponentBase
       if err?
         @sendLog
           logLevel: "error"
-          problem: "The document was not found."
           context: "Reading attachment named '#{requestMessage.attachmentName}' from document of ID #{requestMessage.id} from CouchDB."
+          problem: err
           solution: "Specify the correct document ID and check that another user did not delete the document."
       else
         requestMessage.data = body
