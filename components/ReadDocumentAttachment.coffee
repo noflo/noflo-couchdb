@@ -36,7 +36,7 @@ class ReadDocumentAttachment extends CouchDbComponentBase
 
   readAttachment: (requestMessage) =>
     unless requestMessage.id? and requestMessage.attachmentName?
-      @sendLog
+      return @sendLog
         logLevel: "error"
         context: "Received a request to read and attachment from CouchDB."
         problem: "The request must be a object that includes both a 'id' and an 'attachmentName' field."
