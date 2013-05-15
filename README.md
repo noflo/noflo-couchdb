@@ -79,9 +79,9 @@ The GetChanges component also has a COMMAND port to which you can send messages 
 
 Making sure a database exists first
 -----------------------------------
-In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNotExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
+In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNoneExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
 
-    'https://username:password@server.cloudant.com/my-database-name' -> DbCreate(couchdb/CreateDatabaseIfNotExists)
+    'https://username:password@server.cloudant.com/my-database-name' -> DbCreate(couchdb/CreateDatabaseIfNoneExists)
 	DbCreate() URL -> URL DocReader(couchdb/ReadDocument)
     DocReader() OUT -> IN ConsoleLogger(Output)
     DocReader() LOG -> IN ConsoleLogger(Output)

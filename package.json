@@ -26,7 +26,7 @@
     "components": {
       "GetChanges": "./components/GetChanges.coffee",
       "BulkUpdate": "./components/BulkUpdate.coffee",
-      "CreateDatabaseIfNotExists": "./components/CreateDatabaseIfNotExists.coffee",
+      "CreateDatabaseIfNoneExists": "./components/CreateDatabaseIfNoneExists.coffee",
       "ReadDocument": "./components/ReadDocument.coffee",
       "ReadViewDocuments": "./components/ReadViewDocuments.coffee",
       "ReadDocumentAttachment": "./components/ReadDocumentAttachment.coffee",
