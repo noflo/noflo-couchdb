@@ -1,6 +1,6 @@
 if typeof process is "object" and process.title is "node"
   chai = require "chai" unless chai
-  componentModule = require "../components/CreateDatabaseIfNotExists"
+  componentModule = require "../components/CreateDatabaseIfNoneExists"
   noflo = require "noflo"
   nock = require "nock"
   util = require "util"
