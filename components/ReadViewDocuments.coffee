@@ -5,15 +5,14 @@ noflo = require "noflo"
 # Ports:
 #   In:   URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
 #             When a URL is received, the parent constructor will create an @dbConnection for us.
-#         IN  Created in this class to receive document IDs to write to CouchDB
+#         IN  Created in this class to receive design document IDs, view name and parameters to look up in CouchDB
 #
 #   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
-#         OUT Created in this class to send documents that were written to CouchDB.
+#         OUT Created in this class to send view contents that were read from CouchDB.
 
-class WriteDocument extends CouchDbComponentBase
+class ReadViewDocuments extends CouchDbComponentBase
   constructor: ->
     super
-    @request = null
     @pendingRequests = []
 
     @inPorts.in = new noflo.Port()
@@ -21,7 +20,7 @@ class WriteDocument extends CouchDbComponentBase
 
     @inPorts.url.on "data", (data) =>
       if @dbConnection?
-        @saveObject doc for doc in @pendingRequests
+        @loadViewObjects doc for doc in @pendingRequests
       else
         @sendLog
           logLevel: "error"
@@ -31,25 +30,28 @@ class WriteDocument extends CouchDbComponentBase
 
     @inPorts.in.on "data", (doc) =>
       if @dbConnection
-        @saveObject doc
+        @loadViewObjects doc
       else
         @pendingRequests.push doc
-        
+
     @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
       @outPorts.log.disconnect()
 
-  saveObject: (object) =>
-    @dbConnection.insert object, (err, response) =>
+  loadViewObjects: (requestMessage) ->
+    callback = (err, result) =>
       if err?
         @sendLog
           logLevel: "error"
-          context: "Writing a document to CouchDB."
+          context: "Reading design document ID #{requestMessage.designDocID} view named #{requestMessage.viewName} from CouchDB."
           problem: err
-          solution: "Resolve all conflicts and check that you have permission to insert a document into this database."
+          solution: "Specify the correct design document ID and view name and check that you have permission to read from this view."
       else
-        object.id = response.id unless object.id
-        object.rev = response.rev
-        @outPorts.out.send object if @outPorts.out.isAttached()
+        @outPorts.out.send result if @outPorts.out.isAttached()
 
-exports.getComponent = -> new WriteDocument
+    if requestMessage.params?
+      @dbConnection.view requestMessage.designDocID, requestMessage.viewName, requestMessage.params, callback
+    else
+      @dbConnection.view requestMessage.designDocID, requestMessage.viewName, callback
+
+exports.getComponent = -> new ReadViewDocuments

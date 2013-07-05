@@ -1,67 +1,58 @@
+
 noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
-class GetChanges extends noflo.Component
+# Ports:
+#   In:   URL     Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
+#                 When a URL is received, the parent constructor will create an @dbConnection for us.
+#         FOLLOW  Created in this class to receive requests to get changes from CouchDB.  The data contents on this
+#                 port must be objects with a query and optional parameters.  The contents of this object are described
+#                 at https://github.com/iriscouch/follow#simple-api-followoptions-callback although only the following
+#                 keys are likely to be useful: 'since', 'filter', 'query_params' and 'headers'
+#         COMMAND Created in this class to ask it to STOP, PAUSE or RESUME the change feed.  The data contents on this
+#                 port must be a string with one of those words in it.
+#
+#   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
+#         OUT Created in this class to send change documents that were read from CouchDB.
+
+class GetChanges extends CouchDbComponentBase
   constructor: ->
-    @connection = null
-    @options = null
-    @defaults =
-      feed: "continuous"
-      heartbeat: 1000
-    @request = null
-    @streamData = ""
+    super
 
-    @inPorts =
-      connection: new noflo.Port()
-      option: new noflo.ArrayPort()
-    @outPorts =
-      out: new noflo.ArrayPort()
+    @inPorts.follow = new noflo.Port()
+    @inPorts.command = new noflo.Port()
+    @outPorts.out = new noflo.Port()
 
-    @inPorts.connection.on "data", (data) =>
-      @connection = data
-      do @getChanges if @options
+    # Add an event listener to the URL in-port that we inherit from CouchDbComponentBase
+    @inPorts.url.on "data", (data) =>
+      @startFollowing() if @dbConnection? and @followOptions?
 
-    @inPorts.option.on "data", (data) =>
-      @setOption data
-      do @getChanges if @connection
+    # Since FOLLOW and URL messages might arrive in any order, check for both the options and connection before starting the feed.
+    @inPorts.follow.on "data", (@followOptions) =>
+      @startFollowing() if @dbConnection?
 
-  setOption: (option) ->
-    if typeof option is "object"
-      @options = option
-      return
+    @inPorts.command.on "data", (message) =>
+      switch message.toUpperCase()
+        when "STOP" then @stopAndDisconnect()
+        when "PAUSE" then @feed.pause()
+        when "RESUME" then @feed.resume()
+        else @sendLog
+          logLevel: "error"
+          context: "Processing a message on the command port."
+          problem: "Command '#{message}' was not recognised."
+          solution: "The only valid commands are STOP, PAUSE or RESUME.  The commands are not case sensitive."
 
-    @options = @defaults unless @options
-    optionParts = option.split "="
-    @options[optionParts[0]] = optionParts[1]
+  startFollowing: =>
+    @feed = @dbConnection.follow(@followOptions)
 
-  getQuery: ->
-    queries = []
-    for key, value of @options
-      queries.push "#{key}=#{value}"
-    return "?#{queries.join('&')}"
+    @feed.on "change", (changeMessage) =>
+      @outPorts.out.send changeMessage
 
-  streamToLines: () ->
-    newline = @streamData.indexOf "\n"
-    return if newline is -1
-        
-    line = @streamData.substr(0, newline).trim()
-    @streamData = @streamData.substr newline + 1
+    @feed.follow()
 
-    if line.length
-      @outPorts.out.send JSON.parse line
-
-    do @streamToLines
-
-  getChanges: ->
-    do @request.end if @request
-
-    url = "#{@connection.uri.pathname}/_changes/#{@getQuery()}"
-    @request = @connection.request "GET", url
-    @request.on "data", (data) =>
-      @streamData += data
-      do @streamToLines
-
-    @request.on "end", =>
-      # TODO: Try to reconnect?
-      @outPorts.out.disconnect()
+  stopAndDisconnect: =>
+    @feed.stop()
+    @outPorts.out.disconnect()
+    @outPorts.log.disconnect()
 
 exports.getComponent = -> new GetChanges

@@ -1,75 +1,59 @@
+
 noflo = require "noflo"
+{ CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
-class ReadDocumentAttachment extends noflo.Component
+# Ports:
+#   In:   URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
+#             When a URL is received, the parent constructor will create an @dbConnection for us.
+#         IN  Created in this class to receive document IDs and attachment names to look up in CouchDB
+#
+#   Out:  LOG Inherited from LoggingComponent to send log messages for error handling.
+#         OUT Created in this class to send document attachments that were read from CouchDB.
+
+class ReadDocumentAttachment extends CouchDbComponentBase
   constructor: ->
-    @connection = null
-    @document = null
-    @attachment = null
+    super
+    @pendingRequests = []
 
-    @inPorts =
-      connection: new noflo.Port
-      document: new noflo.Port
-      attachment: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts.in = new noflo.Port
+    @outPorts.out = new noflo.Port
 
-    @inPorts.connection.on "data", (data) =>
-      @connection = data
-      do @readAttachment if @document and @attachment
+    @inPorts.url.on "data", (data) =>
+      if @dbConnection?
+        @readAttachment request for request in @pendingRequests
+      else
+        @sendLog
+          logLevel: "error"
+          context: "Connecting to the CouchDB database at URL '#{data}'."
+          problem: "Parent class CouchDbComponentBase didn't set up a connection."
+          solution: "Refer the document with this context information to the software developer."
 
-    @inPorts.document.on "data", (data) =>
-      @document = data
-      do @readAttachment if @connection and @attachment
+    @inPorts.in.on "data", (requestMessage) =>
+      if @dbConnection?
+        @readAttachment requestMessage
+      else
+        @pendingRequests.push requestMessage
 
-    @inPorts.attachment.on "data", (data) =>
-      @attachment = data
-      do @readAttachment if @connection and @document
+  readAttachment: (requestMessage) =>
+    unless requestMessage.id? and requestMessage.attachmentName?
+      return @sendLog
+        logLevel: "error"
+        context: "Received a request to read and attachment from CouchDB."
+        problem: "The request must be a object that includes both a 'id' and an 'attachmentName' field."
+        solution: "Fix the format of the request to this component. e.g. { 'id': 'abc123', 'attachmentName': 'rabbit.jpg' }"
 
-  getHeaders: ->
-    headers =
-      Host: @connection.uri.hostname
+    @dbConnection.attachment.get requestMessage.id, requestMessage.attachmentName, (err, body, header) =>
+      if err?
+        @sendLog
+          logLevel: "error"
+          context: "Reading attachment named '#{requestMessage.attachmentName}' from document of ID #{requestMessage.id} from CouchDB."
+          problem: err
+          solution: "Specify the correct document ID and check that another user did not delete the document."
+      else
+        requestMessage.data = body
+        requestMessage.header = header
+        @outPorts.out.send requestMessage if @outPorts.out.isAttached()
 
-    if @connection.uri.auth
-      hash = new Buffer(@connection.uri.auth, "ascii").toString "base64"
-      headers.Authorization = "Basic #{hash}"
 
-    return headers
-
-  getRequest: (attachment, callback) ->
-    options =
-      host: @connection.uri.hostname
-      method: "GET"
-      path: "#{@connection.uri.pathname}/#{@document['_id']}/#{attachment}"
-      port: @connection.uri.port
-      headers: @getHeaders()
-
-    req = @connection.uri.protocolHandler.request options, callback
-    req.end()
-
-  getAttachmentNameByIndex: (document, index) ->
-    count = 0
-    index = parseInt index
-    for name, value of document['_attachments']
-      return name if count is index
-      count++
-    return index
-
-  getAttachmentName: (document, attachment) ->
-    return attachment if isNaN attachment - 0
-    return @getAttachmentNameByIndex document, attachment
-
-  readAttachment: ->
-    attachment = @getAttachmentName @document, @attachment
-    @getRequest attachment, (response) =>
-      response.setEncoding "binary"
-      body = ""
-      port = @outPorts.out
-      response.on "data", (chunk) ->
-        body += chunk
-
-      response.on "end", ->
-        buffer = new Buffer body, "binary"
-        port.send buffer
-        do port.disconnect
 
 exports.getComponent = -> new ReadDocumentAttachment
