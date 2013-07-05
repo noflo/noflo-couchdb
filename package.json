@@ -2,34 +2,39 @@
   "name": "noflo-couchdb",
   "description": "CouchDB components for the NoFlo flow-based programming environment",
   "author": "Henri Bergius <henri.bergius@iki.fi>",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "licenses": [{
     "type": "MIT",
     "url": "https://github.com/bergie/noflo/raw/master/LICENSE"
   }],
+  "keywords": ["noflo","couchdb"],
   "engines": {
     "node": ">=0.6.0"
   },
   "dependencies": {
-    "noflo": "0.3.x",
-    "couch-client": "0.0.x"
+    "coffee-script": "1.4.x",
+    "noflo": ">=0.3.4",
+    "nano": "3.3.x"
   },
   "devDependencies": {
-    "nodeunit": ">=0.6.0",
+    "mocha": "~1.9.0",
+    "chai": "~1.5.0",
     "coffeelint": "*",
-    "coffee-script": "1.4.x"
+    "nock": "0.18.0"
   },
   "noflo": {
     "components": {
       "GetChanges": "./components/GetChanges.coffee",
-      "OpenDatabase": "./components/OpenDatabase.coffee",
+      "BulkUpdate": "./components/BulkUpdate.coffee",
+      "CreateDatabaseIfNoneExists": "./components/CreateDatabaseIfNoneExists.coffee",
       "ReadDocument": "./components/ReadDocument.coffee",
+      "ReadViewDocuments": "./components/ReadViewDocuments.coffee",
       "ReadDocumentAttachment": "./components/ReadDocumentAttachment.coffee",
       "WriteDocument": "./components/WriteDocument.coffee"
     }
   },
   "scripts": {
-    "pretest": "./node_modules/.bin/coffeelint -r components",
-    "test": "./node_modules/.bin/nodeunit test"
+    "pretest": "./node_modules/.bin/coffeelint  -f coffeelint_config.json -r components spec",
+    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script spec/*"
   }
 }
