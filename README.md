@@ -7,7 +7,7 @@ Read a document example flow
 ----------------------------
 Here is an example FBP flow configuration to read a document from a database.  You can put this flow configuration into a file called 'readdoc.fbp' and then run it on the command line with `noflo readdoc.fbp`
 
-    'https://username:password@server.cloudant.com/my-database-name' -> DocReader(couchdb/ReadDocument)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DocReader(couchdb/ReadDocument)
     DocReader() OUT -> IN ConsoleLogger(Output)
     DocReader() LOG -> IN ConsoleLogger(Output)
     'your_couchdb_document_id_here' -> IN DocReader(couchdb/ReadDocument)
