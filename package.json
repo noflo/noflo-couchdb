@@ -2,7 +2,7 @@
   "name": "noflo-couchdb",
   "description": "CouchDB components for the NoFlo flow-based programming environment",
   "author": "Henri Bergius <henri.bergius@iki.fi>",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "licenses": [{
     "type": "MIT",
     "url": "https://github.com/bergie/noflo/raw/master/LICENSE"
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "coffee-script": "1.4.x",
-    "noflo": ">=0.3.4",
+    "noflo": ">=0.5.0",
     "nano": "3.3.x"
   },
   "devDependencies": {
@@ -27,6 +27,7 @@
     "nock": "0.18.0"
   },
   "noflo": {
+    "icon": "bitbucket-square",
     "components": {
       "GetChanges": "./components/GetChanges.coffee",
       "BulkUpdate": "./components/BulkUpdate.coffee",
