@@ -16,7 +16,7 @@ noflo = require "noflo"
 #
 # Use this component to read documents out of a CouchDB database.
 
-class ReadDocument extends CouchDbComponentBase
+class DeleteDocument extends CouchDbComponentBase
   constructor: ->
     super
     @pendingRequests = []
@@ -27,7 +27,7 @@ class ReadDocument extends CouchDbComponentBase
     # Add an event listener to the URL in-port that we inherit from CouchDbComponentBase
     @inPorts.url.on "data", (data) =>
       if @dbConnection?
-        @loadObject doc for doc in @pendingRequests
+        @deleteObject doc for doc in @pendingRequests
       else
         @sendLog
           logLevel: "error"
@@ -37,7 +37,7 @@ class ReadDocument extends CouchDbComponentBase
 
     @inPorts.in.on "data", (docID) =>
       if @dbConnection?
-        @loadObject docID
+        @deleteObject docID
       else
         @pendingRequests.push docID
 
@@ -45,7 +45,7 @@ class ReadDocument extends CouchDbComponentBase
       @outPorts.out.disconnect()
       @outPorts.log.disconnect()
 
-  loadObject: (docID) ->
+  deleteObject: (docID) ->
     @dbConnection.destroy docID, (err, document) =>
       if err?
         @sendLog
@@ -56,4 +56,4 @@ class ReadDocument extends CouchDbComponentBase
       else
         @outPorts.out.send document if @outPorts.out.isAttached()
 
-exports.getComponent = -> new ReadDocument
+exports.getComponent = -> new DeleteDocument
