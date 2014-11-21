@@ -20,8 +20,7 @@ class DeleteDocument extends CouchDbComponentBase
   constructor: ->
     super
     @pendingRequests = []
-    @doc_ID = 0
-    @rev_ID = 0
+
     @inPorts.docID = new noflo.Port()
     @inPorts.revID = new noflo.Port()
     @outPorts.out = new noflo.Port()
@@ -39,7 +38,7 @@ class DeleteDocument extends CouchDbComponentBase
 
     @inPorts.docID.on "data", (docID) =>
       @doc_ID = docID
-      if @rev_ID isnt 0 and @dbConnection?
+      if @rev_ID? and @dbConnection?
         @deleteObject @doc_ID,@rev_ID
       else
         #@pendingRequests.push docID
@@ -50,7 +49,7 @@ class DeleteDocument extends CouchDbComponentBase
 
     @inPorts.revID.on "data", (revID) =>
       @rev_id = revID
-      if @doc_ID isnt 0 and @dbConnection? 
+      if @doc_ID? and @dbConnection? 
         @deleteObject @doc_ID,@rev_ID
       else
         #@pendingRequests.push revID
