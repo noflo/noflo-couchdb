@@ -20,7 +20,8 @@ class DeleteDocument extends CouchDbComponentBase
   constructor: ->
     super
     @pendingRequests = []
-
+    @doc_ID = null
+    @rev_ID = null
     @inPorts.docID = new noflo.Port()
     @inPorts.revID = new noflo.Port()
     @outPorts.out = new noflo.Port()
