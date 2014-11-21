@@ -39,7 +39,7 @@ class DeleteDocument extends CouchDbComponentBase
 
     @inPorts.docID.on "data", (docID) =>
       @doc_ID = docID
-      if @dbConnection? and @rev_ID isnt 0
+      if @rev_ID isnt 0 and @dbConnection?
         @deleteObject @doc_ID,@rev_ID
       else
         #@pendingRequests.push docID
@@ -50,7 +50,7 @@ class DeleteDocument extends CouchDbComponentBase
 
     @inPorts.revID.on "data", (revID) =>
       @rev_id = revID
-      if @dbConnection? and  @doc_ID isnt 0
+      if @doc_ID isnt 0 and @dbConnection? 
         @deleteObject @doc_ID,@rev_ID
       else
         #@pendingRequests.push revID
@@ -60,7 +60,7 @@ class DeleteDocument extends CouchDbComponentBase
       @outPorts.log.disconnect()      
 
   deleteObject: (docID,revID) ->
-    @dbConnection.destroy docID,revID, (err, document) =>
+    @dbConnection.destroy @doc_ID, @rev_ID, (err, document) =>
       if err?
         @sendLog
           logLevel: "error"
