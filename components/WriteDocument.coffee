@@ -15,6 +15,8 @@ class WriteDocument extends CouchDbComponentBase
     super
     @request = null
     @pendingRequests = []
+    @doc_ID = null
+    @rev_ID = null
 
     @inPorts.in = new noflo.Port()
     @outPorts.out = new noflo.Port()
