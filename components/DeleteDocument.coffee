@@ -38,7 +38,7 @@ class DeleteDocument extends CouchDbComponentBase
           solution: "Refer the document with this context information to the software developer."
 
     @inPorts.docID.on "data", (docID) =>
-      doc_ID=docID
+      doc_ID = docID
       if @dbConnection? and rev_ID isnt 0
         @deleteObject doc_ID
       else
@@ -49,7 +49,7 @@ class DeleteDocument extends CouchDbComponentBase
       @outPorts.log.disconnect()
 
     @inPorts.revID.on "data", (revID) =>
-      rev_id=revID
+      rev_id = revID
       if @dbConnection? and  doc_ID isnt 0
         @deleteObject doc_ID,rev_ID
       else
