@@ -20,10 +20,7 @@ class DeleteDocument extends CouchDbComponentBase
   constructor: ->
     super
     @pendingRequests = []
-    @doc_ID = null
-    @rev_ID = null
-    @inPorts.docID = new noflo.Port()
-    @inPorts.revID = new noflo.Port()
+    @inPorts.in = new noflo.Port()
     @outPorts.out = new noflo.Port()
 
     # Add an event listener to the URL in-port that we inherit from CouchDbComponentBase
@@ -37,30 +34,18 @@ class DeleteDocument extends CouchDbComponentBase
           problem: "Parent class CouchDbComponentBase didn't set up a connection."
           solution: "Refer the document with this context information to the software developer."
 
-    @inPorts.docID.on "data", (docID) =>
-      @doc_ID = docID
-      if @rev_ID? and @dbConnection?
-        @deleteObject @doc_ID,@rev_ID
+    @inPorts.in.on "data", (doc) =>
+      if @dbConnection?
+        @deleteObject doc.id,doc.rev
       else
         #@pendingRequests.push docID
 
-    @inPorts.docID.on "disconnect", =>
+    @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
-      @outPorts.log.disconnect()
-
-    @inPorts.revID.on "data", (revID) =>
-      @rev_id = revID
-      if @doc_ID? and @dbConnection? 
-        @deleteObject @doc_ID,@rev_ID
-      else
-        #@pendingRequests.push revID
-
-    @inPorts.docID.on "disconnect", =>
-      @outPorts.out.disconnect()
-      @outPorts.log.disconnect()      
+      @outPorts.log.disconnect()     
 
   deleteObject: (docID,revID) ->
-    @dbConnection.destroy @doc_ID, @rev_ID, (err, document) =>
+    @dbConnection.destroy docID, revID, (err, document) =>
       if err?
         @sendLog
           logLevel: "error"
