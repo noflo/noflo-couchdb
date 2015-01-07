@@ -3,7 +3,7 @@ noflo = require "noflo"
 { CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
 # ## Ports:
-# 
+#
 # * In
 #   * URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
 #     When a URL is received, the parent constructor will create an @dbConnection for us.
@@ -42,7 +42,7 @@ class DeleteDocument extends CouchDbComponentBase
 
     @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
-      @outPorts.log.disconnect()     
+      @outPorts.log.disconnect()
 
   deleteObject: (docID,revID) ->
     @dbConnection.destroy docID, revID, (err, document) =>

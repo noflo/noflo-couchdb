@@ -3,7 +3,7 @@ noflo = require "noflo"
 { CouchDbComponentBase } = require "../lib/CouchDbComponentBase"
 
 # ## Ports:
-# 
+#
 # * In
 #   * URL Inherited from CouchDbComponentBase parent class to receive connection information to CouchDB.
 #     When a URL is received, the parent constructor will create an @dbConnection for us.
