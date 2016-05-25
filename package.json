@@ -3,15 +3,20 @@
   "description": "CouchDB components for the NoFlo flow-based programming environment",
   "author": "Henri Bergius <henri.bergius@iki.fi>; Zeke Dean <zeke.dean@propulsion.io>",
   "version": "1.0.2",
-  "licenses": [{
-    "type": "MIT",
-    "url": "https://github.com/bergie/noflo/raw/master/LICENSE"
-  }],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/bergie/noflo/raw/master/LICENSE"
+    }
+  ],
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/noflo/noflo-couchdb.git"
+    "type": "git",
+    "url": "https://github.com/noflo/noflo-couchdb.git"
   },
-  "keywords": ["noflo","couchdb"],
+  "keywords": [
+    "noflo",
+    "couchdb"
+  ],
   "engines": {
     "node": ">=0.6.0"
   },
@@ -21,7 +26,7 @@
     "nano": "~5.11.2"
   },
   "devDependencies": {
-    "mocha": "~1.21.0",
+    "mocha": "~2.5.3",
     "chai": "~1.9.0",
     "coffeelint": "*",
     "nock": "0.48.0"
