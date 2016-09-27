@@ -21,7 +21,7 @@
     "nano": "~5.11.2"
   },
   "devDependencies": {
-    "mocha": "~1.21.0",
+    "mocha": "~3.1.0",
     "chai": "~1.9.0",
     "coffeelint": "*",
     "nock": "0.48.0"
