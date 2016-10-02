@@ -16,7 +16,7 @@
     "node": ">=0.6.0"
   },
   "dependencies": {
-    "coffee-script": "1.8.x",
+    "coffee-script": "1.11.1",
     "noflo": ">=0.5.0",
     "nano": "~5.11.2"
   },
