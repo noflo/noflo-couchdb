@@ -24,7 +24,7 @@
     "mocha": "~1.21.0",
     "chai": "~1.9.0",
     "coffeelint": "*",
-    "nock": "0.48.0"
+    "nock": "8.2.1"
   },
   "noflo": {
     "icon": "bitbucket-square",
