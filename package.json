@@ -16,15 +16,15 @@
     "node": ">=0.6.0"
   },
   "dependencies": {
-    "coffee-script": "1.8.x",
+    "coffee-script": "~1.12.2",
     "noflo": ">=0.5.0",
-    "nano": "~5.11.2"
+    "nano": "~6.2.0"
   },
   "devDependencies": {
-    "mocha": "~1.21.0",
-    "chai": "~1.9.0",
+    "mocha": "~3.2.0",
+    "chai": "~3.5.0",
     "coffeelint": "*",
-    "nock": "0.48.0"
+    "nock": "9.0.2"
   },
   "noflo": {
     "icon": "bitbucket-square",
