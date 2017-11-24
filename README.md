@@ -18,7 +18,7 @@ To begin with, I send a message on the DocReader component's URL port telling it
 
 Write a document example flow
 -----------------------------
-    'https://username:password@server.cloudant.com/my-database-name' -> URL  DocWriter(couchdb/WriteDocument)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DocWriter(couchdb/WriteDocument)
     DocWriter() OUT -> IN ConsoleLogger(Output)
     DocWriter() ERROR -> IN ConsoleLogger(Output)
     Txt2Obj() OUT -> IN DocWriter(couchdb/WriteDocument)
@@ -81,7 +81,7 @@ Making sure a database exists first
 -----------------------------------
 In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNoneExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
 
-    'https://username:password@server.cloudant.com/my-database-name' -> DbCreate(couchdb/CreateDatabaseIfNoneExists)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DbCreate(couchdb/CreateDatabaseIfNoneExists)
 	DbCreate() URL -> URL DocReader(couchdb/ReadDocument)
     DocReader() OUT -> IN ConsoleLogger(Output)
     DocReader() ERROR -> IN ConsoleLogger(Output)
