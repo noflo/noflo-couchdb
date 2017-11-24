@@ -27,7 +27,7 @@
     "icon": "bitbucket-square"
   },
   "scripts": {
-    "pretest": "./node_modules/.bin/coffeelint -r components",
+    "pretest": "coffeelint -f .coffeelint.json -r components",
     "test": "mocha --require coffeescript/register -R spec -t 2000 spec/*.coffee"
   }
 }
