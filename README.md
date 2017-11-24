@@ -92,6 +92,6 @@ This flow is almost the same as the document reading example above, but it makes
 Changes
 -------
 
-* 2.0.0 (git master)
+* 2.0.0 (November 24 2017)
   - Ported all components to Process API
   - Switched error handling from `log` port to the more standard `error` port

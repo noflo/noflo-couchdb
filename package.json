@@ -2,7 +2,7 @@
   "name": "noflo-couchdb",
   "description": "CouchDB components for the NoFlo flow-based programming environment",
   "author": "Henri Bergius <henri.bergius@iki.fi>; Zeke Dean <zeke.dean@propulsion.io>",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "license": "MIT",
   "repository": {
     "type" : "git",
