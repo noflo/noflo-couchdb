@@ -1,45 +1,38 @@
-if typeof process is "object" and process.title is "node"
-  chai = require "chai" unless chai
-  componentModule = require "../components/BulkUpdate"
-  noflo = require "noflo"
-  nock = require "nock"
-  util = require "util"
+chai = require 'chai'
+noflo = require 'noflo'
+nock = require 'nock'
+path = require 'path'
+baseDir = path.resolve __dirname, '../'
 
-describe "BulkUpdate", ->
-  @timeout 5000  # Dear mocha, don't timeout tests that take less than 5 seconds. Kthxbai
+describe 'BulkUpdate', ->
   couchDbUrl = "https://adminUser:adminPass@accountName.cloudant.com/noflo-test"
   mockCouchDb = null
   component = null
   urlInSocket = null
   inSocket = null
   outSocket = null
-  logOutSocket = null
+  errorSocket = null
   outMessages = []
-  logOutMessages = []
-
-  before ->
-    component = componentModule.getComponent()
-    urlInSocket = noflo.internalSocket.createSocket()
-    inSocket = noflo.internalSocket.createSocket()
-    outSocket = noflo.internalSocket.createSocket()
-    logOutSocket = noflo.internalSocket.createSocket()
-
-    component.inPorts.url.attach urlInSocket
-    component.inPorts.in.attach inSocket
-    component.outPorts.out.attach outSocket
-    component.outPorts.log.attach logOutSocket
-
-    # Listen for messages on the out and log ports.  Add the messages to an array for later inspection.
-    logOutSocket.on "data", (message) ->
-      logOutMessages.push message
-      # console.log util.inspect message, 4, true, true  # uncomment this line if you want to see log messages as they arrive.
-
-    outSocket.on "data", (message) ->
-      outMessages.push message
+  before (done) ->
+    @timeout 4000
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'couchdb/BulkUpdate', (err, instance) ->
+      return done err if err
+      component = instance
+      urlInSocket = noflo.internalSocket.createSocket()
+      inSocket = noflo.internalSocket.createSocket()
+      component.inPorts.url.attach urlInSocket
+      component.inPorts.in.attach inSocket
+      outSocket = noflo.internalSocket.createSocket()
+      errorSocket = noflo.internalSocket.createSocket()
+      component.outPorts.out.attach outSocket
+      component.outPorts.error.attach errorSocket
+      outSocket.on "data", (message) ->
+        outMessages.push message
+      done()
 
   describe "can send multiple updates to the database", ->
     before (done) ->
-      logOutMessages.length = 0
       outMessages.length = 0
 
       # Prepare the couchDB mock to respond with a "200: OK" response and an JSON document.
@@ -62,20 +55,16 @@ describe "BulkUpdate", ->
 
       urlInSocket.send couchDbUrl
       inSocket.send updateDoc
-      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed, including any on the log out port.
+      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed
 
     it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
     it "should send the JSON document to the out port when done", ->
       chai.expect(outMessages).to.have.length(1)
-      chai.expect(outMessages[0]).to.deep.equal [
+      chai.expect(outMessages[0]).to.eql [
         { id: 'e90b5d7344f95173c85a3bb9115d0555', rev: '2-2dec425e0bdc27edb38a3a013a0fe305' },
         { id: '9fb104a33609c077b904469572ba537b', rev: '2-2dec425e0bdc27edb38a3a013a0fe305' },
         { id: '8a761ddc142bb6b182e0f91b5a1e6272', rev: '18-dd894f75bc9c4bcde2ca0b6b287ae64f' },
         { id: 'blah', rev: '14-60d6a9891b9e569601057b52dbb0e2ac' },
       ]
-
-    it "should not send a log message", ->
-      chai.expect(logOutMessages).to.have.length(0)
-

@@ -1,9 +1,8 @@
-if typeof process is "object" and process.title is "node"
-  chai = require "chai" unless chai
-  componentModule = require "../components/ReadDocument"
-  noflo = require "noflo"
-  nock = require "nock"
-  util = require "util"
+chai = require 'chai'
+noflo = require 'noflo'
+nock = require 'nock'
+path = require 'path'
+baseDir = path.resolve __dirname, '../'
 
 describe "ReadDocument", ->
   @timeout 5000  # Dear mocha, don't timeout tests that take less than 5 seconds. Kthxbai
@@ -13,33 +12,37 @@ describe "ReadDocument", ->
   urlInSocket = null
   inSocket = null
   outSocket = null
-  logOutSocket = null
+  errorSocket = null
   outMessages = []
-  logOutMessages = []
+  errorMessages = []
+  before (done) ->
+    @timeout 4000
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'couchdb/ReadDocument', (err, instance) ->
+      return done err if err
+      component = instance
 
-  before ->
-    component = componentModule.getComponent()
-    urlInSocket = noflo.internalSocket.createSocket()
-    inSocket = noflo.internalSocket.createSocket()
-    outSocket = noflo.internalSocket.createSocket()
-    logOutSocket = noflo.internalSocket.createSocket()
+      urlInSocket = noflo.internalSocket.createSocket()
+      inSocket = noflo.internalSocket.createSocket()
+      outSocket = noflo.internalSocket.createSocket()
+      errorSocket = noflo.internalSocket.createSocket()
 
-    component.inPorts.url.attach urlInSocket
-    component.inPorts.in.attach inSocket
-    component.outPorts.out.attach outSocket
-    component.outPorts.log.attach logOutSocket
+      component.inPorts.url.attach urlInSocket
+      component.inPorts.in.attach inSocket
+      component.outPorts.out.attach outSocket
+      component.outPorts.error.attach errorSocket
 
-    # Listen for messages on the out and log ports.  Add the messages to an array for later inspection.
-    logOutSocket.on "data", (message) ->
-      logOutMessages.push message
-      # console.log util.inspect message, 4, true, true  # uncomment this line if you want to see log messages as they arrive.
+      errorSocket.on "data", (message) ->
+        errorMessages.push message
 
-    outSocket.on "data", (message) ->
-      outMessages.push message
+      outSocket.on "data", (message) ->
+        outMessages.push message
+
+      done()
 
   describe "can read a document that does exist in the database", ->
     before (done) ->
-      logOutMessages.length = 0
+      errorMessages.length = 0
       outMessages.length = 0
 
       # Prepare the couchDB mock to respond with a "200: OK" response and an JSON document.
@@ -69,11 +72,11 @@ describe "ReadDocument", ->
         messageID: 2
 
     it "should not send a log message", ->
-      chai.expect(logOutMessages).to.have.length(0)
+      chai.expect(errorMessages).to.have.length(0)
 
   describe "logs an error when a document does not exist in the database", ->
     before (done) ->
-      logOutMessages.length = 0
+      errorMessages.length = 0
       outMessages.length = 0
 
       # Prepare the couchDB mock to respond with a "200: OK" response and an JSON document.
@@ -97,8 +100,5 @@ describe "ReadDocument", ->
       chai.expect(outMessages).to.have.length(0)
 
     it "should log an error message", ->
-      chai.expect(logOutMessages).to.have.length(1)
-      chai.expect(logOutMessages[0]).to.have.property "logLevel", "error"
-      for name in [ "context","problem","solution" ]
-        chai.expect(logOutMessages[0]).to.have.property name
-      chai.expect(logOutMessages[0]).to.have.deep.property "problem.error", "not_found"
+      chai.expect(errorMessages).to.have.length(1)
+      chai.expect(errorMessages[0]).to.have.property "message"

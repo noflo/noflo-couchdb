@@ -1,9 +1,8 @@
-if typeof process is "object" and process.title is "node"
-  chai = require "chai" unless chai
-  componentModule = require "../components/ReadDocumentAttachment"
-  noflo = require "noflo"
-  nock = require "nock"
-  util = require "util"
+chai = require 'chai'
+noflo = require 'noflo'
+nock = require 'nock'
+path = require 'path'
+baseDir = path.resolve __dirname, '../'
 
 describe "ReadDocumentAttachment", ->
   @timeout 5000  # Dear mocha, don"t timeout tests that take less than 5 seconds. Kthxbai
@@ -13,33 +12,32 @@ describe "ReadDocumentAttachment", ->
   urlInSocket = null
   inSocket = null
   outSocket = null
-  logOutSocket = null
+  errorSocket = null
   outMessages = []
-  logOutMessages = []
-
-  before ->
-    component = componentModule.getComponent()
-    urlInSocket = noflo.internalSocket.createSocket()
-    inSocket = noflo.internalSocket.createSocket()
-    outSocket = noflo.internalSocket.createSocket()
-    logOutSocket = noflo.internalSocket.createSocket()
-
-    component.inPorts.url.attach urlInSocket
-    component.inPorts.in.attach inSocket
-    component.outPorts.out.attach outSocket
-    component.outPorts.log.attach logOutSocket
-
-    # Listen for messages on the out and log ports.  Add the messages to an array for later inspection.
-    logOutSocket.on "data", (message) ->
-      logOutMessages.push message
-      # console.log util.inspect message, 4, true, true  # uncomment this line if you want to see log messages as they arrive.
-
-    outSocket.on "data", (message) ->
-      outMessages.push message
+  errorMessages = []
+  before (done) ->
+    @timeout 4000
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'couchdb/ReadDocumentAttachment', (err, instance) ->
+      return done err if err
+      component = instance
+      urlInSocket = noflo.internalSocket.createSocket()
+      inSocket = noflo.internalSocket.createSocket()
+      outSocket = noflo.internalSocket.createSocket()
+      errorSocket = noflo.internalSocket.createSocket()
+      component.inPorts.url.attach urlInSocket
+      component.inPorts.in.attach inSocket
+      component.outPorts.out.attach outSocket
+      component.outPorts.error.attach errorSocket
+      errorSocket.on "data", (message) ->
+        errorMessages.push message
+      outSocket.on "data", (message) ->
+        outMessages.push message
+      done()
 
   describe "can read a document attachment that exists in the database", ->
     before (done) ->
-      logOutMessages.length = 0
+      errorMessages.length = 0
       outMessages.length = 0
 
       # Prepare the couchDB mock to respond with a "200: OK" response and the attachment text.
@@ -55,7 +53,7 @@ describe "ReadDocumentAttachment", ->
 
       urlInSocket.send couchDbUrl
       inSocket.send { id: "a8561c6524f5b33082de2c78e4756f03", attachmentName: "sentence.txt" }
-      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed, including any on the log out port.
+      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed
 
     it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
@@ -65,14 +63,13 @@ describe "ReadDocumentAttachment", ->
       chai.expect(outMessages[0]).to.have.property "id", "a8561c6524f5b33082de2c78e4756f03"
       chai.expect(outMessages[0]).to.have.property "attachmentName", "sentence.txt"
       chai.expect(outMessages[0]).to.have.property "header"
-      chai.expect(outMessages[0]).to.have.property "data"
 
-    it "should not send a log message", ->
-      chai.expect(logOutMessages).to.have.length(0)
+    it "should not send a error message", ->
+      chai.expect(errorMessages.length).to.equal 0
 
   describe "logs an error when a document does not exist in the database", ->
     before (done) ->
-      logOutMessages.length = 0
+      errorMessages.length = 0
       outMessages.length = 0
 
       # Prepare the couchDB mock to respond with a "200: OK" response and an JSON document.
@@ -86,17 +83,14 @@ describe "ReadDocumentAttachment", ->
 
       urlInSocket.send couchDbUrl
       inSocket.send { id: "a8561c6524f5b33082de2c78e4756f03", attachmentName: "sentence.wrong_extension" }
-      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed, including any on the log out port.
+      setTimeout done, 1000  # wait 1 second to be sure all messages have been processed
 
     it "should have called CouchDB to read the document", ->
       mockCouchDb.done()
 
     it "should not send any message to the out port", ->
-      chai.expect(outMessages).to.have.length(0)
+      chai.expect(outMessages).to.eql []
 
     it "should log an error message", ->
-      chai.expect(logOutMessages).to.have.length(1)
-      chai.expect(logOutMessages[0]).to.have.property "logLevel", "error"
-      for name in [ "context","problem","solution" ]
-        chai.expect(logOutMessages[0]).to.have.property name
-      chai.expect(logOutMessages[0]).to.have.deep.property "problem.error", "not_found"
+      chai.expect(errorMessages).to.have.length(1)
+      chai.expect(errorMessages[0]).to.have.property "message"
