@@ -13,34 +13,24 @@
   },
   "keywords": ["noflo","couchdb"],
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=6"
   },
   "dependencies": {
-    "coffee-script": "~1.12.2",
     "noflo": ">=0.5.0",
     "nano": "~6.2.0"
   },
   "devDependencies": {
-    "mocha": "~3.2.0",
-    "chai": "~3.5.0",
-    "coffeelint": "*",
-    "nock": "9.0.2"
+    "chai": "^4.0.0",
+    "coffeescript": "^2.0.2",
+    "coffeelint": "^2.0.7",
+    "mocha": "^4.0.0",
+    "nock": "^9.1.0"
   },
   "noflo": {
-    "icon": "bitbucket-square",
-    "components": {
-      "GetChanges": "./components/GetChanges.coffee",
-      "BulkUpdate": "./components/BulkUpdate.coffee",
-      "CreateDatabaseIfNoneExists": "./components/CreateDatabaseIfNoneExists.coffee",
-      "ReadDocument": "./components/ReadDocument.coffee",
-      "DeleteDocument": "./components/DeleteDocument.coffee",
-      "ReadViewDocuments": "./components/ReadViewDocuments.coffee",
-      "ReadDocumentAttachment": "./components/ReadDocumentAttachment.coffee",
-      "WriteDocument": "./components/WriteDocument.coffee"
-    }
+    "icon": "bitbucket-square"
   },
   "scripts": {
-    "pretest": "./node_modules/.bin/coffeelint  -f coffeelint_config.json -r components spec",
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register spec/*"
+    "pretest": "./node_modules/.bin/coffeelint -r components",
+    "test": "mocha --require coffeescript/register -R spec -t 2000 spec/*.coffee"
   }
 }
