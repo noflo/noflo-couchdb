@@ -1,3 +1,11 @@
 language: node_js
 node_js:
-  - "lts/*"
+- lts/*
+deploy:
+  provider: npm
+  email: henri.bergius@iki.fi
+  api_key:
+    secure: edIsjlko3ksVJkKyt6D5pu44FBJ1OlhlHSkuIQ7Sx53YROSpeHN6I9jT4mmyQU7tif1KVnJRP+Nb7UNAG17gUhIOm2PHVD33gtJNhiR9/izW47vmvckDesZ+pwIxskTWDJu55oJtRyFAGQBHBoy+2IdzHO1IEwgvgMv4QSujiuw=
+  on:
+    tags: true
+    repo: noflo/noflo-couchdb
