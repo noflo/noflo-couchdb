@@ -9,7 +9,7 @@ Here is an example FBP flow configuration to read a document from a database.  Y
 
     'https://username:password@server.cloudant.com/my-database-name' -> URL DocReader(couchdb/ReadDocument)
     DocReader() OUT -> IN ConsoleLogger(Output)
-    DocReader() LOG -> IN ConsoleLogger(Output)
+    DocReader() ERROR -> IN ConsoleLogger(Output)
     'your_couchdb_document_id_here' -> IN DocReader(couchdb/ReadDocument)
 
 In this example I instantiated 2 components which I have called DocReader and ConsoleLogger.  DocReader will run an instance of the couchdb/ReadDocument component (which is defined in this package) and the ConsoleLogger which is defined in the main [NoFlo](http://noflojs.org/) package.
@@ -18,9 +18,9 @@ To begin with, I send a message on the DocReader component's URL port telling it
 
 Write a document example flow
 -----------------------------
-    'https://username:password@server.cloudant.com/my-database-name' -> URL  DocWriter(couchdb/WriteDocument)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DocWriter(couchdb/WriteDocument)
     DocWriter() OUT -> IN ConsoleLogger(Output)
-    DocWriter() LOG -> IN ConsoleLogger(Output)
+    DocWriter() ERROR -> IN ConsoleLogger(Output)
     Txt2Obj() OUT -> IN DocWriter(couchdb/WriteDocument)
     '{ "source": "from NoFlo", "how_awesome": "Really rather good." }' -> IN Txt2Obj(ParseJson)
 
@@ -30,7 +30,7 @@ Read an attachment example flow
 -------------------------------
     'https://username:password@server.cloudant.com/my-database-name' -> URL AttReader(couchdb/ReadDocumentAttachment)
     AttReader() OUT -> IN ConsoleLogger(Output)
-    AttReader() LOG -> IN ConsoleLogger(Output)
+    AttReader() ERROR -> IN ConsoleLogger(Output)
     '{ "id": "your_couchdb_document_id_here", "attachmentName": "rabbit.jpg" }' -> IN Txt2Obj(ParseJson)
     Txt2Obj() OUT -> IN AttReader(couchdb/ReadDocumentAttachment)
 
@@ -57,7 +57,7 @@ Read from a view
 ----------------
     'https://username:password@server.cloudant.com/my-database-name' -> URL ViewReader(couchdb/ReadViewDocuments)
     ViewReader() OUT -> IN ConsoleLogger(Output)
-    ViewReader() LOG -> IN ConsoleLogger(Output)
+    ViewReader() ERROR -> IN ConsoleLogger(Output)
     # '{ "designDocID": "noflo_tests", "viewName": "testDocs" }' -> IN Txt2Obj(ParseJson)
     # '{ "designDocID": "noflo_tests", "viewName": "testDocs", "params": { "startkey": 2, "endkey": 4 } }' -> IN Txt2Obj(ParseJson)
     '{ "designDocID": "noflo_tests", "viewName": "testDocs", "params": { "keys": [2, 3] } }' -> IN Txt2Obj(ParseJson)
@@ -69,7 +69,7 @@ Watching for Changes in the Database
 ------------------------------------
 	'https://username:password@server.cloudant.com/my-database-name' -> URL ChangeReader(couchdb/GetChanges)
 	ChangeReader() OUT -> IN ConsoleLogger(Output)
-	ChangeReader() LOG -> IN ConsoleLogger(Output)
+	ChangeReader() ERROR -> IN ConsoleLogger(Output)
 	'{ "since": "now" }' -> IN Txt2Obj(ParseJson)
 	Txt2Obj(ParseJson) OUT -> FOLLOW ChangeReader(couchdb/GetChanges)
 
@@ -81,24 +81,17 @@ Making sure a database exists first
 -----------------------------------
 In previous versions of this library there was an OpenDatabase component which would create a database if it did not exist, then pass a connection object on to the other components which might read or write documents and attachments.  The CreateDatabaseIfNoneExists component replaces the OpenDatabase component.  It has a URL in port and it will check that a database exists before sending the database location on it's URL out port.  You might use it in a flow that looks something like this:
 
-    'https://username:password@server.cloudant.com/my-database-name' -> DbCreate(couchdb/CreateDatabaseIfNoneExists)
+    'https://username:password@server.cloudant.com/my-database-name' -> URL DbCreate(couchdb/CreateDatabaseIfNoneExists)
 	DbCreate() URL -> URL DocReader(couchdb/ReadDocument)
     DocReader() OUT -> IN ConsoleLogger(Output)
-    DocReader() LOG -> IN ConsoleLogger(Output)
+    DocReader() ERROR -> IN ConsoleLogger(Output)
     'your_couchdb_document_id_here' -> IN DocReader(couchdb/ReadDocument)
 
 This flow is almost the same as the document reading example above, but it makes sure that the CouchDB database exists before passing the URL on to the document reading component.
 
-Logging
+Changes
 -------
-Each component in this library includes a 'log' port that describe important events in the components life.  Most importantly, when something goes wrong, the components will write messages with `{ 'logLevel': 'error' }` to the log port.  Each error message will try to describe the context of what the component was doing when the error occurred, a specific problem description as well as suggested solutions.  For example, if I were to misspell the attachment name from the flow immediately above, I would get the following message on the 'log' port.
 
-    { logLevel: 'error',
-      context: 'Reading attachment named \'rabbt.jpg\' from document of ID your_couchdb_document_id_here from CouchDB.',
-      problem: 'The document was not found.',
-      solution: 'Specify the correct document ID and check that another user did not delete the document.',
-      when: Fri Apr 12 2013 14:20:12 GMT+0100 (BST),
-      source: 'ReadDocumentAttachment',
-      nodeID: 'AttReader' }
-
-The 'source' attribute tells you which component generated the message, in case you centralise the error logging.  This might help you determine how to recover from the error and which component to send the corrected request back to.  Why report errors with context, problem & solution?  [I'm glad you asked!](http://programmers.stackexchange.com/questions/29433/how-to-write-a-good-exception-message/29455#29455)
+* 2.0.0 (git master)
+  - Ported all components to Process API
+  - Switched error handling from `log` port to the more standard `error` port
