@@ -21,7 +21,7 @@
     "coffeescript": "^2.0.2",
     "coffeelint": "^2.0.7",
     "mocha": "^6.0.0",
-    "nock": "^10.0.0"
+    "nock": "^11.3.2"
   },
   "noflo": {
     "icon": "bitbucket-square"
