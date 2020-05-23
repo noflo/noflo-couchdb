@@ -20,7 +20,7 @@
     "chai": "^4.0.0",
     "coffeescript": "^2.0.2",
     "coffeelint": "^2.0.7",
-    "mocha": "^6.0.0",
+    "mocha": "^7.2.0",
     "nock": "^10.0.0"
   },
   "noflo": {
